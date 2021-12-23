@@ -15,6 +15,8 @@ repositories {
 dependencies {
     implementation(project(":api"))
     compileOnly(project(":nms"))
+
+    implementation("org.bstats:bstats-bukkit:2.2.1")
 }
 
 
@@ -36,6 +38,7 @@ tasks {
     shadowJar {
         dependencies {
             exclude(project(":nms")) // Included later via a spigot mapped jar.
+            relocate("org.bstats", "com.owen1212055.biomevisuals.libs.bstats")
         }
     }
 

@@ -6,6 +6,8 @@ import com.owen1212055.biomevisuals.commands.*;
 import com.owen1212055.biomevisuals.nms.*;
 import com.owen1212055.biomevisuals.nms.hooks.*;
 import com.owen1212055.biomevisuals.parsers.*;
+import org.bstats.bukkit.*;
+import org.bstats.charts.*;
 import org.bukkit.*;
 import org.bukkit.plugin.java.*;
 import org.slf4j.*;
@@ -14,7 +16,7 @@ import java.nio.file.*;
 import java.util.*;
 import java.util.function.*;
 
-public class Main extends JavaPlugin implements BiomeVisualizer {
+public class Main extends JavaPlugin implements OverrideRegistry {
 
     public static boolean HOOK_ACTIVE = false;
     private static Main instance;
@@ -58,6 +60,29 @@ public class Main extends JavaPlugin implements BiomeVisualizer {
         }
 
         Bukkit.getCommandMap().register("bv", new BiomeVisualCommand());
+
+        Metrics metrics = new Metrics(this, 13696);
+        metrics.addCustomChart(new AdvancedPie("overridden_registries", () -> {
+            Map<String, Integer> hookedRegisteries = new HashMap<>(Main.OVERRIDES.size());
+            for (Map.Entry<HookType, List<KeyedOverride>> value : Main.OVERRIDES.entrySet()) {
+                hookedRegisteries.put(value.getKey().getKey().toString(), value.getValue().size());
+            }
+
+            return hookedRegisteries;
+        }));
+        metrics.addCustomChart(new AdvancedPie("overridden_types", () -> {
+            Map<String, Integer> hookedRegisteries = new HashMap<>(Main.OVERRIDES.size());
+            for (List<KeyedOverride> value : Main.OVERRIDES.values()) {
+                for (KeyedOverride override : value) {
+                    String key = override.key().toString();
+                    int previous = hookedRegisteries.getOrDefault(key, 1);
+
+                    hookedRegisteries.put(key, previous);
+                }
+            }
+
+            return hookedRegisteries;
+        }));
     }
 
     @Override

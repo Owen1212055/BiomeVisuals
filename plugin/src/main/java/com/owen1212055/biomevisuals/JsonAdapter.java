@@ -14,7 +14,7 @@ public class JsonAdapter {
     static {
         GsonBuilder builder = new GsonBuilder();
         builder.registerTypeAdapter(NamespacedKey.class, (JsonSerializer<NamespacedKey>) (src, typeOfSrc, context) -> new JsonPrimitive(src.toString()));
-        builder.registerTypeAdapter(Color.class, (JsonSerializer<Color>) (src, typeOfSrc, context) -> new JsonPrimitive(src.getRGB()));
+        builder.registerTypeAdapter(java.awt.Color.class, (JsonSerializer<java.awt.Color>) (src, typeOfSrc, context) -> new JsonPrimitive(src.getRGB()));
         builder.registerTypeAdapter(AdditionSound.class, (JsonSerializer<AdditionSound>) (src, typeOfSrc, context) -> ApiEntityConverter.convert(src));
         builder.registerTypeAdapter(AmbientParticle.class, (JsonSerializer<AmbientParticle>) (src, typeOfSrc, context) -> ApiEntityConverter.convert(src));
         builder.registerTypeAdapter(GrassModifier.class, (JsonSerializer<GrassModifier>) (src, typeOfSrc, context) -> new JsonPrimitive(src.getKey()));

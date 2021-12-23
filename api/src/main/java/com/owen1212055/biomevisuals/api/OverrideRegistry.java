@@ -5,7 +5,7 @@ import org.bukkit.*;
 
 import java.util.function.*;
 
-public interface BiomeVisualizer {
+public interface OverrideRegistry {
 
     /**
      * Registers a custom biome override that will be applied
