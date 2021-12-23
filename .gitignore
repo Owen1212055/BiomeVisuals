@@ -1,0 +1,7 @@
+/run/
+/.gradle/
+/plugin/build/
+/nms/build/
+/nms/.gradle/
+/api/build/
+/.idea/

@@ -1,0 +1,10 @@
+package com.owen1212055.biomevisuals.parsers.booleans;
+
+import com.google.gson.*;
+
+public interface BooleanProvider {
+
+    String getKey();
+
+    boolean parse(JsonObject object);
+}
