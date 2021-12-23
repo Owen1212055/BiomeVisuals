@@ -116,3 +116,5 @@ For converting colors, I recommend using http://www.shodor.org/stella2java/rgbin
   ]
 }
 ```
+
+<h1 align="center">Need help? Feel free to join my discord for help: https://discord.gg/APaZK9tvkw</h1> 
