@@ -40,7 +40,6 @@ public class Main extends JavaPlugin implements BiomeVisualizer {
             LOGGER.warn("Failed to inject hook, added override will not be applied to players.");
             HOOK_ACTIVE = false;
         }
-        ///tp Owen1212055 -69 62 214 -17.2 -4.6
 
         try {
             List<Map<HookType, List<KeyedOverride>>> overrides = OverrideParser.readOverrides();
