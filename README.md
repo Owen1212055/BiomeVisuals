@@ -36,6 +36,8 @@ registry.registerBiomeOverride(NamespacedKey.minecraft("plains"), BiomeDataBuild
 #### File Importing
 The plugin will automatically try to import overrides that are defined in the ``overrides`` directory located in the plugin directory. (``BiomeVisuals/overrides``)
 Inorder to add an override, you must first define the registry type that you are overriding. This is incase if any new overrides are added in the future.
+Simply create a new file, for example, ``my_cool_override.json``.
+
 ##### Currently, the supported override types are: ``worldgen/biome``.
 
 Then, you will add the json object for an override, which is:
