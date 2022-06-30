@@ -4,7 +4,7 @@ import com.google.gson.*;
 import com.mojang.serialization.*;
 import com.owen1212055.biomevisuals.api.types.biome.effect.*;
 import net.minecraft.world.level.biome.*;
-import org.bukkit.craftbukkit.v1_18_R2.*;
+import org.bukkit.craftbukkit.v1_19_R1.*;
 
 public class ApiEntityConverter {
 

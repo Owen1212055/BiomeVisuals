@@ -18,7 +18,7 @@ public class OverrideParser {
         Path mainPath = Main.getDataPath();
         try {
             if (!Files.exists(mainPath)) {
-                Files.createDirectory(mainPath);
+                Files.createDirectories(mainPath);
             }
         } catch (Exception e) {
             Main.LOGGER.error("Failed to create override directly.", e);

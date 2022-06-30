@@ -1,8 +1,7 @@
-import java.nio.file.*
-
 plugins {
     java
     id("com.github.johnrengelman.shadow") version "7.1.0"
+    id("xyz.jpenilla.run-paper") version "1.0.6"
 }
 
 group = "com.owen1212055"
@@ -14,9 +13,9 @@ repositories {
 
 dependencies {
     implementation(project(":api"))
-    compileOnly(project(":nms"))
+    implementation(project(":nms", configuration = "reobf"))
 
-    implementation("org.bstats:bstats-bukkit:2.2.1")
+    implementation("org.bstats:bstats-bukkit:3.0.0")
 }
 
 
@@ -24,24 +23,17 @@ tasks {
     compileJava {
         options.encoding = Charsets.UTF_8.name()
         options.release.set(17)
-
-        val mainFile = file("../nms/build/libs/nms-1.0.jar").toPath()
-        if (Files.exists(mainFile)) {
-            Files.copy(
-                mainFile,
-                file("src/main/resources/nms-1.0.jar").toPath(),
-                StandardCopyOption.REPLACE_EXISTING
-            )
-        }
     }
 
     shadowJar {
         dependencies {
-            exclude(project(":nms")) // Included later via a spigot mapped jar.
-            relocate("org.bstats", "com.owen1212055.biomevisuals.libs.bstats")
+            relocate("org.bstats", "com.owen1212055.${rootProject.name}.libs.bstats")
         }
     }
 
+    runServer {
+        minecraftVersion("1.19")
+    }
 }
 
 

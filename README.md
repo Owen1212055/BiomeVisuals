@@ -46,7 +46,7 @@ Then, you will add the json object for an override, which is:
   "key": "minecraft:plains",
   "override": {},
   "condition": {
-    "type": "",
+    "type": ""
   }
 }
  ```

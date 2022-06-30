@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "com.owen1212055"
-version = ""
+version = "1.2"
 
 repositories {
     mavenCentral()

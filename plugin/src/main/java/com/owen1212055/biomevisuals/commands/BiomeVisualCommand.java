@@ -15,15 +15,15 @@ import java.util.*;
 
 public class BiomeVisualCommand extends Command {
 
-    private static final String USAGE_MESSAGE = "/biomevisual <reload|overrides>";
+    private static final String USAGE_MESSAGE = "/biomevisuals <reload|overrides>";
     private static final TextColor MAIN_COLOR = TextColor.color(100, 155, 255);
     private static final TextColor ACCENT_COLOR = TextColor.color(100, 195, 230);
     private static final TextColor TEXT_COLOR = TextColor.color(1, 105, 200);
 
-    private static final Component PREFIX = Component.text(">> ", ACCENT_COLOR).append(Component.text("BiomeVisual: ", MAIN_COLOR));
+    private static final Component PREFIX = Component.text(">> ", ACCENT_COLOR).append(Component.text("BiomeVisuals: ", MAIN_COLOR));
 
     public BiomeVisualCommand() {
-        super("biomevisual", "Main command for some utilities with the biome visual plugin.", USAGE_MESSAGE, List.of());
+        super("biomevisuals", "Main command for some utilities with the biome visual plugin.", USAGE_MESSAGE, List.of());
     }
 
     @Override
