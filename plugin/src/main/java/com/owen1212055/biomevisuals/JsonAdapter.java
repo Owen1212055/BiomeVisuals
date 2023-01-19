@@ -32,7 +32,7 @@ public class JsonAdapter {
         return GSON.toJsonTree(data).getAsJsonObject();
     }
 
-    public static JsonObject adapt(DimensionData data) {
+    public static JsonObject adapt(@SuppressWarnings("deprecation") DimensionData data) {
         return GSON.toJsonTree(data).getAsJsonObject();
     }
 }
