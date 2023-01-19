@@ -25,7 +25,7 @@ public class RegistryHook {
 
             @Override
             public <T> DataResult<T> encode(RegistryAccess input, DynamicOps<T> ops, T prefix) {
-                var result = CAPTURED_CODEC.encode(input, JsonOps.INSTANCE, JsonOps.INSTANCE.empty());
+                DataResult<JsonElement> result = CAPTURED_CODEC.encode(input, JsonOps.INSTANCE, JsonOps.INSTANCE.empty());
                 var optionalError = result.error();
                 if (optionalError.isPresent()) {
                     LOGGER.warn("Failed to encode to JSON: " + optionalError.get().message());
@@ -33,7 +33,7 @@ public class RegistryHook {
                     return CAPTURED_CODEC.encode(input, ops, prefix);
                 }
 
-                var mainRegistry = result.get().orThrow().getAsJsonObject();
+                JsonObject mainRegistry = result.get().orThrow().getAsJsonObject();
                 // Iterate through active override types
                 for (var entry : hooks.entrySet()) {
                     // Retrieve the registry array
