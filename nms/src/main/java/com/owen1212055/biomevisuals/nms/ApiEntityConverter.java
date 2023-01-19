@@ -3,13 +3,14 @@ package com.owen1212055.biomevisuals.nms;
 import com.google.gson.*;
 import com.mojang.serialization.*;
 import com.owen1212055.biomevisuals.api.types.biome.effect.*;
+import net.minecraft.core.Holder;
 import net.minecraft.world.level.biome.*;
-import org.bukkit.craftbukkit.v1_19_R1.*;
+import org.bukkit.craftbukkit.v1_19_R2.*;
 
 public class ApiEntityConverter {
 
     public static JsonElement convert(AdditionSound sound) {
-        AmbientAdditionsSettings settings = new AmbientAdditionsSettings(CraftSound.getSoundEffect(sound.getSoundEvent()), sound.getTickChance());
+        AmbientAdditionsSettings settings = new AmbientAdditionsSettings(Holder.direct(CraftSound.getSoundEffect(sound.getSoundEvent())), sound.getTickChance());
 
         return AmbientAdditionsSettings.CODEC.encode(settings, JsonOps.INSTANCE, JsonOps.INSTANCE.empty()).get().orThrow();
     }
@@ -21,13 +22,13 @@ public class ApiEntityConverter {
     }
 
     public static JsonElement convert(MoodSound moodSound) {
-        AmbientMoodSettings settings = new AmbientMoodSettings(CraftSound.getSoundEffect(moodSound.getSoundEvent()), moodSound.getTickDelay(), moodSound.getBlockSearchExtent(), moodSound.getSoundPositionOffset());
+        AmbientMoodSettings settings = new AmbientMoodSettings(Holder.direct(CraftSound.getSoundEffect(moodSound.getSoundEvent())), moodSound.getTickDelay(), moodSound.getBlockSearchExtent(), moodSound.getSoundPositionOffset());
 
         return AmbientMoodSettings.CODEC.encode(settings, JsonOps.INSTANCE, JsonOps.INSTANCE.empty()).get().orThrow();
     }
 
     public static JsonElement convert(Music music) {
-        net.minecraft.sounds.Music nmsMusic = new net.minecraft.sounds.Music(CraftSound.getSoundEffect(music.getSound()), music.getMinDelay(), music.getMaxDelay(), music.replaceCurrentMusic());
+        net.minecraft.sounds.Music nmsMusic = new net.minecraft.sounds.Music(Holder.direct(CraftSound.getSoundEffect(music.getSound())), music.getMinDelay(), music.getMaxDelay(), music.replaceCurrentMusic());
 
         return net.minecraft.sounds.Music.CODEC.encode(nmsMusic, JsonOps.INSTANCE, JsonOps.INSTANCE.empty()).get().orThrow();
     }

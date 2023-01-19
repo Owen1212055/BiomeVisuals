@@ -18,14 +18,14 @@ public class RegistryHook {
         LOGGER = logger;
         LOGGER.info("Injecting custom codec for registry overriding...");
 
-        Codec<RegistryAccess> CAPTURED_CODEC = RegistryAccess.NETWORK_CODEC;  // Capture the codec stored in the variable, we will be replacing it.
+        Codec<RegistryAccess> CAPTURED_CODEC = RegistrySynchronization.NETWORK_CODEC;  // Capture the codec stored in the variable, we will be replacing it.
 
         // This is meant to basically allow us to encode our own values before it is sent to the client.
         Codec<RegistryAccess> INJECTED_CODEC = new Codec<>() {
 
             @Override
             public <T> DataResult<T> encode(RegistryAccess input, DynamicOps<T> ops, T prefix) {
-                DataResult<JsonElement> result = CAPTURED_CODEC.encode(input, JsonOps.INSTANCE, JsonOps.INSTANCE.empty());
+                var result = CAPTURED_CODEC.encode(input, JsonOps.INSTANCE, JsonOps.INSTANCE.empty());
                 var optionalError = result.error();
                 if (optionalError.isPresent()) {
                     LOGGER.warn("Failed to encode to JSON: " + optionalError.get().message());
@@ -33,7 +33,7 @@ public class RegistryHook {
                     return CAPTURED_CODEC.encode(input, ops, prefix);
                 }
 
-                JsonObject mainRegistry = result.get().orThrow().getAsJsonObject();
+                var mainRegistry = result.get().orThrow().getAsJsonObject();
                 // Iterate through active override types
                 for (var entry : hooks.entrySet()) {
                     // Retrieve the registry array
@@ -73,7 +73,8 @@ public class RegistryHook {
                     LOGGER.info("Sending client default data instead to circumvent this.");
                     return CAPTURED_CODEC.encode(input, ops, prefix);
                 } else {
-                    RegistryAccess holder = dataresult.map(Pair::getFirst).result().orElseThrow();
+                    // The captured codec of MC 1.19.3 expects an instance of ImmutableRegistryAccess
+                    RegistryAccess holder = dataresult.map(Pair::getFirst).result().orElseThrow().freeze();
 
                     // If we good encode it to whatever
                     return CAPTURED_CODEC.encode(holder, ops, prefix);
@@ -86,7 +87,8 @@ public class RegistryHook {
             }
         };
 
-        UnsafeUtils.unsafeStaticSet(RegistryAccess.class.getDeclaredField("c"), INJECTED_CODEC);
+        // This declared field name comes from the Mojang-provided server JAR mappings. Verified to work
+        UnsafeUtils.unsafeStaticSet(RegistrySynchronization.class.getDeclaredField("a"), INJECTED_CODEC);
     }
 
     private static void mergeObject(JsonObject into, JsonObject merging) {
