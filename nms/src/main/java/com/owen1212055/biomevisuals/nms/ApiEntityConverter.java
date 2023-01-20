@@ -12,6 +12,7 @@ import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_19_R2.*;
 import org.bukkit.craftbukkit.v1_19_R2.util.CraftNamespacedKey;
 
+import java.lang.reflect.Field;
 import java.util.Objects;
 
 public class ApiEntityConverter {
@@ -38,8 +39,10 @@ public class ApiEntityConverter {
         AmbientParticleSettings settings = AmbientParticleSettings.CODEC.decode(JsonOps.INSTANCE, particle).map(Pair::getFirst).result().orElseThrow();
 
         try {
-            // FIXME the particle data object is not serialized as such, so we can't deserialize it back
-            var probabilityField = AmbientParticleSettings.class.getDeclaredField("c");
+            // FIXME the particle data is used to select the ParticleOptions instance to use and not serialized as such,
+            //       so we can't deserialize it back unless we do extreme hackery.
+            // "c" is the obfuscated field name for AmbientParticleSettings#probability, which is encapsulated
+            Field probabilityField = AmbientParticleSettings.class.getDeclaredField("c");
             probabilityField.setAccessible(true);
             return new AmbientParticle(CraftParticle.toBukkit(settings.getOptions()), (float) probabilityField.get(settings));
         } catch (ReflectiveOperationException e) {
