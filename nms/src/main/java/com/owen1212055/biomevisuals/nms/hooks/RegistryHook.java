@@ -45,7 +45,7 @@ public class RegistryHook {
                     Map<NamespacedKey, JsonObject> registryEntries = new HashMap<>(registry.size());
                     Map<NamespacedKey, JsonObject> registryEntryHolders = new HashMap<>(registry.size());
                     for (JsonElement jsonElement : registry) {
-                        var namespacedKey = Objects.requireNonNull(NamespacedKey.fromString(jsonElement.getAsJsonObject().get("name").getAsString()));
+                        var namespacedKey = NamespacedKey.fromString(jsonElement.getAsJsonObject().get("name").getAsString());
 
                         // Event listeners are handed a copy of the JSON structure, so any changes to it won't affect the decoded registry yet.
                         registryEntries.put(namespacedKey, jsonElement.getAsJsonObject().getAsJsonObject("element").deepCopy());

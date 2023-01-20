@@ -105,7 +105,7 @@ public class Main extends JavaPlugin implements OverrideRegistry, Listener {
             return;
         }
 
-        for (final var keyedOverride : keyedOverrides) {
+        for (var keyedOverride : keyedOverrides) {
             if (!keyedOverride.valid().getAsBoolean()) {
                 continue;
             }
