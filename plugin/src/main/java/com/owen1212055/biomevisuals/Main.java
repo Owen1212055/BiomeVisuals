@@ -41,6 +41,7 @@ public class Main extends JavaPlugin implements OverrideRegistry, Listener {
         LOGGER = getSLF4JLogger();
         try {
             RegistryHook.injectCodec(LOGGER);
+            HOOK_ACTIVE = true;
         } catch (Exception e) {
             LOGGER.warn("Failed to inject hook, overrides will not be applied to players.");
             HOOK_ACTIVE = false;
