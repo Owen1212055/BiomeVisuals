@@ -52,7 +52,7 @@ public class RegistryHook {
                         registryEntryHolders.put(namespacedKey, jsonElement.getAsJsonObject());
                     }
 
-                    // Let event handlers observe and modify the registry data, but not add or remove new entries in the registry.
+                    // Let event handlers observe and modify the registry data, but not add or remove entries in the registry.
                     var sendEvent = new RegistrySendEvent(hookedTypeKey, Collections.unmodifiableMap(registryEntries));
                     Bukkit.getPluginManager().callEvent(sendEvent);
 
