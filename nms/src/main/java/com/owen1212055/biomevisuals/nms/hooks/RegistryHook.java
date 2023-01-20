@@ -3,8 +3,10 @@ package com.owen1212055.biomevisuals.nms.hooks;
 import com.google.gson.*;
 import com.mojang.datafixers.util.*;
 import com.mojang.serialization.*;
+import com.owen1212055.biomevisuals.api.*;
 import com.owen1212055.biomevisuals.nms.*;
 import net.minecraft.core.*;
+import org.bukkit.*;
 import org.slf4j.*;
 
 import java.util.*;
@@ -14,7 +16,7 @@ public class RegistryHook {
     private static Logger LOGGER;
 
     // Custom codec that wraps around the pre-existing codec.
-    public static void injectCodec(Map<HookType, List<KeyedOverride>> hooks, Logger logger) throws Exception {
+    public static void injectCodec(Logger logger) throws Exception {
         LOGGER = logger;
         LOGGER.info("Injecting custom codec for registry overriding...");
 
@@ -34,32 +36,37 @@ public class RegistryHook {
                 }
 
                 JsonObject mainRegistry = result.get().orThrow().getAsJsonObject();
-                // Iterate through active override types
-                for (var entry : hooks.entrySet()) {
+                // Iterate through hooked registry types
+                for (var hookedTypeKey : HookType.getKeys()) {
                     // Retrieve the registry array
-                    JsonArray registry = mainRegistry.get(entry.getKey().getKey().toString()).getAsJsonObject().getAsJsonArray("value");
+                    JsonArray registry = mainRegistry.get(hookedTypeKey.toString()).getAsJsonObject().getAsJsonArray("value");
 
-                    // Populate it and key it by its identifier, this is because they are stored in an array and this allows us to fetch them nicely.
-                    Map<String, JsonObject> registeredObjects = new HashMap<>(registry.size());
+                    // Populate maps keyed by identifiers, because they are stored in an array and this allows us to fetch them nicely.
+                    Map<NamespacedKey, JsonObject> registryEntries = new HashMap<>(registry.size());
+                    Map<NamespacedKey, JsonObject> registryEntryHolders = new HashMap<>(registry.size());
                     for (JsonElement jsonElement : registry) {
-                        registeredObjects.put(jsonElement.getAsJsonObject().get("name").getAsString(), jsonElement.getAsJsonObject().getAsJsonObject("element"));
+                        var namespacedKey = Objects.requireNonNull(NamespacedKey.fromString(jsonElement.getAsJsonObject().get("name").getAsString()));
+
+                        // Event listeners are handed a copy of the JSON structure, so any changes to it won't affect the decoded registry yet.
+                        registryEntries.put(namespacedKey, jsonElement.getAsJsonObject().getAsJsonObject("element").deepCopy());
+                        registryEntryHolders.put(namespacedKey, jsonElement.getAsJsonObject());
                     }
 
-                    // Iterate over the overrides
-                    for (KeyedOverride override : entry.getValue()) {
-                        String overrideKey = override.key().toString();
-                        JsonObject toOverride = registeredObjects.get(overrideKey);
-                        if (toOverride == null) {
-                            LOGGER.warn("Couldn't find override for {} {}", overrideKey, entry.getKey());
-                            continue;
-                        }
+                    // Let event handlers observe and modify the registry data.
+                    final var sendEvent = new RegistrySendEvent(hookedTypeKey, registryEntries);
+                    Bukkit.getPluginManager().callEvent(sendEvent);
 
-                        try {
-                            if (override.valid().getAsBoolean()) {
-                                mergeObject(toOverride, override.object());
-                            }
-                        } catch (Exception e) {
-                            LOGGER.error("Error parsing boolean provider", e);
+                    // Apply changes made to the registry entries map only if the registry override event was not cancelled.
+                    if (sendEvent.isCancelled()) {
+                        continue;
+                    }
+
+                    for (final var overriddenEntry : registryEntries.entrySet()) {
+                        JsonObject registryEntryHolder;
+
+                        if ((registryEntryHolder = registryEntryHolders.get(overriddenEntry.getKey())) != null) {
+                            // Only replace if present to prevent handlers that add new registry entries from having any effect.
+                            registryEntryHolder.add("element", overriddenEntry.getValue());
                         }
                     }
 
@@ -69,7 +76,7 @@ public class RegistryHook {
                 var dataresult = CAPTURED_CODEC.decode(JsonOps.INSTANCE, mainRegistry);
                 // Fail?
                 if (dataresult.error().isPresent()) {
-                    LOGGER.warn("Failed to encode biome hook: {} ", dataresult.error().get().message());
+                    LOGGER.warn("Failed to encode hooked data: {}", dataresult.error().get().message());
                     LOGGER.info("Sending client default data instead to circumvent this.");
                     return CAPTURED_CODEC.encode(input, ops, prefix);
                 } else {
@@ -89,24 +96,6 @@ public class RegistryHook {
 
         // This declared field name comes from the Mojang-provided server JAR mappings. Verified to work
         UnsafeUtils.unsafeStaticSet(RegistrySynchronization.class.getDeclaredField("a"), INJECTED_CODEC);
-    }
-
-    private static void mergeObject(JsonObject into, JsonObject merging) {
-        for (String overrideKey : merging.keySet()) {
-            JsonElement element = merging.get(overrideKey);
-
-            if (element.isJsonObject()) {
-                JsonElement original = into.get(overrideKey);
-                if (original != null && original.isJsonObject()) {
-                    mergeObject(original.getAsJsonObject(), element.getAsJsonObject());
-                } else {
-                    into.add(overrideKey, element);
-                }
-            } else {
-                into.add(overrideKey, element);
-            }
-
-        }
     }
 
 }
