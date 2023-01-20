@@ -1,5 +1,9 @@
 package com.owen1212055.biomevisuals.api.types.biome;
 
+import com.owen1212055.biomevisuals.api.RegistryType;
+
+import java.util.*;
+
 public enum BiomeCategory {
     NONE("none"),
     TAIGA("taiga"),
@@ -21,6 +25,14 @@ public enum BiomeCategory {
     UNDERGROUND("underground"),
     MOUNTAIN("mountain");
 
+    private static final Map<String, BiomeCategory> BIOME_CATEGORY_MAP = new HashMap<>(values().length);
+
+    static {
+        for (BiomeCategory type : values()) {
+            BIOME_CATEGORY_MAP.put(type.key, type);
+        }
+    }
+
     private final String key;
 
     BiomeCategory(String key) {
@@ -30,4 +42,9 @@ public enum BiomeCategory {
     public String getKey() {
         return key;
     }
+
+    public static BiomeCategory getBiomeCategory(String key) {
+        return BIOME_CATEGORY_MAP.get(key);
+    }
+
 }

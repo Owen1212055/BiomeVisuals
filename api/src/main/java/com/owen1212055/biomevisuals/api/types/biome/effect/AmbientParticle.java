@@ -3,41 +3,16 @@ package com.owen1212055.biomevisuals.api.types.biome.effect;
 import org.bukkit.*;
 import org.jetbrains.annotations.*;
 
-public final class AmbientParticle {
+public record AmbientParticle(@NotNull Particle particle, @Nullable Object data, float probability) {
 
-    @NotNull
-    private final Particle particle;
-    @Nullable
-    private final Object data;
-    private final float probability;
-
-    AmbientParticle(@NotNull Particle particle, @Nullable Object data, float probability) {
+    public AmbientParticle(@NotNull Particle particle, @Nullable Object data, float probability) {
         this.particle = particle;
         this.data = data;
         this.probability = probability;
     }
 
-    @NotNull
-    public static AmbientParticle of(@NotNull Particle particle, float probability, @Nullable Object data) {
-        return new AmbientParticle(particle, data, probability);
+    public AmbientParticle(@NotNull Particle particle, float probability) {
+        this(particle, null, probability);
     }
 
-    @NotNull
-    public static AmbientParticle of(@NotNull Particle particle, float probability) {
-        return new AmbientParticle(particle, null, probability);
-    }
-
-    @NotNull
-    public Particle getParticle() {
-        return particle;
-    }
-
-    @Nullable
-    public Object getData() {
-        return data;
-    }
-
-    public float getProbability() {
-        return probability;
-    }
 }

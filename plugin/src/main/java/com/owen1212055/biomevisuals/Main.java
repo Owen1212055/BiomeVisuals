@@ -33,7 +33,7 @@ public class Main extends JavaPlugin implements OverrideRegistry, Listener {
         return getInstance().getDataFolder().toPath().resolve("overrides");
     }
 
-    public static final Map<HookType, List<KeyedOverride>> OVERRIDES = new EnumMap<>(HookType.class);
+    public static final Map<RegistryType, List<KeyedOverride>> OVERRIDES = new EnumMap<>(RegistryType.class);
 
     @Override
     public void onEnable() {
@@ -48,12 +48,12 @@ public class Main extends JavaPlugin implements OverrideRegistry, Listener {
         }
 
         try {
-            List<Map<HookType, List<KeyedOverride>>> overrides = OverrideParser.readOverrides();
+            List<Map<RegistryType, List<KeyedOverride>>> overrides = OverrideParser.readOverrides();
 
             int overrideCount = 0;
-            for (Map<HookType, List<KeyedOverride>> map : overrides) {
+            for (Map<RegistryType, List<KeyedOverride>> map : overrides) {
                 Main.OVERRIDES.putAll(map);
-                for (HookType type : map.keySet()) {
+                for (RegistryType type : map.keySet()) {
                     overrideCount += map.get(type).size();
                 }
             }
@@ -70,7 +70,7 @@ public class Main extends JavaPlugin implements OverrideRegistry, Listener {
         Metrics metrics = new Metrics(this, 13696);
         metrics.addCustomChart(new AdvancedPie("overridden_registries", () -> {
             Map<String, Integer> hookedRegisteries = new HashMap<>(Main.OVERRIDES.size());
-            for (Map.Entry<HookType, List<KeyedOverride>> value : Main.OVERRIDES.entrySet()) {
+            for (Map.Entry<RegistryType, List<KeyedOverride>> value : Main.OVERRIDES.entrySet()) {
                 hookedRegisteries.put(value.getKey().getKey().toString(), value.getValue().size());
             }
 
@@ -99,27 +99,34 @@ public class Main extends JavaPlugin implements OverrideRegistry, Listener {
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void onRegistrySend(final @NotNull RegistrySendEvent event) {
-        List<KeyedOverride> keyedOverrides;
-        if ((keyedOverrides = OVERRIDES.get(HookType.getType(event.getRegistryType()))) == null) {
+    public void onRegistrySend(final @NotNull BiomeRegistrySendEvent event) {
+        List<KeyedOverride> keyedOverrides = OVERRIDES.get(RegistryType.BIOME);
+        if (keyedOverrides == null) {
             return;
         }
 
+        Map<NamespacedKey, BiomeData> registryEntries = event.getRegistryEntries();
         for (KeyedOverride keyedOverride : keyedOverrides) {
             if (!keyedOverride.valid().getAsBoolean()) {
                 continue;
             }
 
-            JsonObject registryEntries;
-            if ((registryEntries = event.getRegistryEntries().get(keyedOverride.key())) != null) {
-                mergeObject(registryEntries, keyedOverride.object());
+            BiomeData registryEntry = registryEntries.get(keyedOverride.key());
+            if (registryEntry == null) {
+                continue;
             }
+
+            // Convert the registry data holder to a JSON object for merging.
+            // Then convert the merged JSON object back to a data holder object
+            JsonObject registryEntryObject = JsonAdapter.adapt(registryEntry);
+            mergeObject(registryEntryObject, keyedOverride.object());
+            registryEntries.put(keyedOverride.key(), JsonAdapter.adapt(registryEntryObject, BiomeData.class));
         }
     }
 
     @Override
     public void registerBiomeOverride(NamespacedKey biomeKey, BiomeData data, BooleanSupplier isValid) {
-        List<KeyedOverride> overrides = OVERRIDES.computeIfAbsent(HookType.BIOME, k -> new ArrayList<>());
+        List<KeyedOverride> overrides = OVERRIDES.computeIfAbsent(RegistryType.BIOME, k -> new ArrayList<>());
 
         overrides.add(new KeyedOverride(biomeKey, JsonAdapter.adapt(data), isValid, false));
     }

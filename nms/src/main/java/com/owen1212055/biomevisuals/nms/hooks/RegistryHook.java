@@ -4,9 +4,11 @@ import com.google.gson.*;
 import com.mojang.datafixers.util.*;
 import com.mojang.serialization.*;
 import com.owen1212055.biomevisuals.api.*;
+import com.owen1212055.biomevisuals.api.types.biome.BiomeData;
 import com.owen1212055.biomevisuals.nms.*;
 import net.minecraft.core.*;
 import org.bukkit.*;
+import org.bukkit.event.*;
 import org.slf4j.*;
 
 import java.util.*;
@@ -39,33 +41,49 @@ public class RegistryHook {
 
                 JsonObject mainRegistry = result.get().orThrow().getAsJsonObject();
                 // Iterate through hooked registry types
-                for (var hookedTypeKey : RegistryType.getKeys()) {
+                for (var hookedType : RegistryType.values()) {
                     // Retrieve the registry array
-                    JsonArray registry = mainRegistry.get(hookedTypeKey.toString()).getAsJsonObject().getAsJsonArray("value");
+                    JsonArray registry = mainRegistry.get(hookedType.getKey().toString()).getAsJsonObject().getAsJsonArray("value");
 
                     // Populate maps keyed by identifiers, because they are stored in an array and this allows us to fetch them nicely.
-                    Map<NamespacedKey, JsonObject> registryEntries = new HashMap<>(registry.size());
+                    Map<NamespacedKey, Object> registryEntries = new HashMap<>(registry.size());
                     Map<NamespacedKey, JsonObject> registryEntryHolders = new HashMap<>(registry.size());
+                    Class<?> registryEntryDataType = hookedType.getDataType();
                     for (JsonElement jsonElement : registry) {
                         NamespacedKey namespacedKey = NamespacedKey.fromString(jsonElement.getAsJsonObject().get("name").getAsString());
+                        JsonObject registryEntry = jsonElement.getAsJsonObject().getAsJsonObject("element");
+                        Object registryEntryData = JsonAdapter.adapt(registryEntry, registryEntryDataType);
 
-                        // Event listeners are handed a copy of the JSON structure, so any changes to it won't affect the decoded registry yet.
-                        registryEntries.put(namespacedKey, jsonElement.getAsJsonObject().getAsJsonObject("element").deepCopy());
+                        registryEntries.put(namespacedKey, registryEntryData);
                         registryEntryHolders.put(namespacedKey, jsonElement.getAsJsonObject());
+
+                        LOGGER.debug("Deserializing registry entry to strongly typed object: {}, {} -> {}", namespacedKey, registryEntry, registryEntryData);
                     }
 
-                    // Let event handlers observe and modify the registry data, but not add or remove entries in the registry.
-                    RegistrySendEvent sendEvent = new RegistrySendEvent(hookedTypeKey, Collections.unmodifiableMap(registryEntries));
+                    // Let soundEvent handlers observe and modify the registry data.
+                    RegistrySendEvent<?> sendEvent;
+                    if (registryEntryDataType == BiomeData.class) {
+                        sendEvent = new BiomeRegistrySendEvent(uncheckedCastMap(registryEntries));
+                    } else {
+                        LOGGER.error("Unimplemented soundEvent for registry data type: {}. This is an internal plugin error that must be fixed", registryEntryDataType.getName());
+                        LOGGER.info("Sending client default data instead to circumvent this.");
+                        return CAPTURED_CODEC.encode(input, ops, prefix);
+                    }
+
                     Bukkit.getPluginManager().callEvent(sendEvent);
 
-                    // Apply changes made to the registry entries map only if the registry override event was not cancelled.
+                    // Apply changes made to the registry entries map only if the registry override soundEvent was not cancelled.
                     if (sendEvent.isCancelled()) {
                         continue;
                     }
 
-                    for (Entry<NamespacedKey, JsonObject> overriddenEntry : registryEntries.entrySet()) {
+                    for (Entry<NamespacedKey, Object> overriddenEntry : registryEntries.entrySet()) {
                         JsonObject registryEntryHolder = registryEntryHolders.get(overriddenEntry.getKey());
-                        registryEntryHolder.add("element", overriddenEntry.getValue());
+
+                        // Only replace if present to prevent handlers that add new registry entries from having any effect.
+                        if (registryEntryHolder != null) {
+                            registryEntryHolder.add("element", JsonAdapter.adapt(overriddenEntry.getValue()));
+                        }
                     }
 
                 }
@@ -94,6 +112,11 @@ public class RegistryHook {
 
         // This declared field name comes from the Mojang-provided server JAR mappings. Verified to work
         UnsafeUtils.unsafeStaticSet(RegistrySynchronization.class.getDeclaredField("a"), INJECTED_CODEC);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <K, V> Map<K, V> uncheckedCastMap(Map<?, ?> map) {
+        return (Map<K, V>) map;
     }
 
 }

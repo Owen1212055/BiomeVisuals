@@ -1,7 +1,6 @@
 package com.owen1212055.biomevisuals.api.types.biome.effect;
 
 import org.bukkit.Color;
-import org.bukkit.Sound;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,7 +19,7 @@ public class BiomeEffectBuilder {
     @Nullable
     private AmbientParticle ambientParticleSettings;
     @Nullable
-    private Sound ambientSound;
+    private AmbientSound ambientSound;
     @Nullable
     private MoodSound ambientMoodSettings;
     @Nullable
@@ -131,7 +130,7 @@ public class BiomeEffectBuilder {
      * @param ambientSound ambient sound
      * @return self
      */
-    public BiomeEffectBuilder ambientSound(@Nullable Sound ambientSound) {
+    public BiomeEffectBuilder ambientSound(@Nullable AmbientSound ambientSound) {
         this.ambientSound = ambientSound;
         return this;
     }
@@ -172,23 +171,18 @@ public class BiomeEffectBuilder {
     @NotNull
     public BiomeEffect build() {
         return new BiomeEffect(
-                this.parse(fogColor),
-                this.parse(waterColor),
-                this.parse(waterFogColor),
-                this.parse(skyColor),
-                this.parse(foliageColorOverride),
-                this.parse(grassColorOverride),
+                fogColor,
+                waterColor,
+                waterFogColor,
+                skyColor,
+                foliageColorOverride,
+                grassColorOverride,
                 grassColorModifier,
                 ambientParticleSettings,
                 ambientSound,
                 ambientMoodSettings,
                 ambientAdditionsSettings,
                 backgroundMusic);
-    }
-
-
-    private Integer parse(@Nullable Color color) {
-        return color == null ? null : color.asRGB();
     }
 
 }

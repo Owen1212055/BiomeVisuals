@@ -2,6 +2,7 @@ package com.owen1212055.biomevisuals.commands;
 
 import com.google.gson.*;
 import com.owen1212055.biomevisuals.*;
+import com.owen1212055.biomevisuals.api.RegistryType;
 import com.owen1212055.biomevisuals.nms.*;
 import com.owen1212055.biomevisuals.nms.hooks.*;
 import com.owen1212055.biomevisuals.parsers.*;
@@ -55,12 +56,12 @@ public class BiomeVisualCommand extends Command {
         }
 
         try {
-            List<Map<HookType, List<KeyedOverride>>> overrides = OverrideParser.readOverrides();
+            List<Map<RegistryType, List<KeyedOverride>>> overrides = OverrideParser.readOverrides();
 
             int overrideCount = 0;
-            for (Map<HookType, List<KeyedOverride>> map : overrides) {
+            for (Map<RegistryType, List<KeyedOverride>> map : overrides) {
                 Main.OVERRIDES.putAll(map);
-                for (HookType type : map.keySet()) {
+                for (RegistryType type : map.keySet()) {
                     overrideCount += map.get(type).size();
                 }
             }
@@ -82,7 +83,7 @@ public class BiomeVisualCommand extends Command {
                 .create();
 
 
-        for (Map.Entry<HookType, List<KeyedOverride>> entry : Main.OVERRIDES.entrySet()) {
+        for (Map.Entry<RegistryType, List<KeyedOverride>> entry : Main.OVERRIDES.entrySet()) {
             sender.sendMessage(Component.text("Hook Type:", ACCENT_COLOR, TextDecoration.BOLD));
             sender.sendMessage(Component.text(entry.getKey().getKey().toString(), TEXT_COLOR));
 

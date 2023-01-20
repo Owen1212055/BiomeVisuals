@@ -2,6 +2,8 @@ package com.owen1212055.biomevisuals.api.types.biome.effect;
 
 import org.jetbrains.annotations.*;
 
+import java.util.*;
+
 public enum GrassModifier {
 
     /**
@@ -15,8 +17,15 @@ public enum GrassModifier {
     /**
      * Grass color is instead determined by a biome noise source, switching between two main colors.
      */
-    SWAMP("swamp"),
-    ;
+    SWAMP("swamp");
+
+    private static final Map<String, GrassModifier> GRASS_MODIFIER_MAP = new HashMap<>(values().length);
+
+    static {
+        for (GrassModifier type : values()) {
+            GRASS_MODIFIER_MAP.put(type.key, type);
+        }
+    }
 
     private final String key;
 
@@ -28,4 +37,9 @@ public enum GrassModifier {
     public String getKey() {
         return key;
     }
+
+    public static GrassModifier getGrassModifier(String key) {
+        return GRASS_MODIFIER_MAP.get(key);
+    }
+
 }
