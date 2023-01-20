@@ -52,8 +52,8 @@ public class RegistryHook {
                         registryEntryHolders.put(namespacedKey, jsonElement.getAsJsonObject());
                     }
 
-                    // Let event handlers observe and modify the registry data.
-                    final var sendEvent = new RegistrySendEvent(hookedTypeKey, registryEntries);
+                    // Let event handlers observe and modify the registry data, but not add or remove new entries in the registry.
+                    var sendEvent = new RegistrySendEvent(hookedTypeKey, Collections.unmodifiableMap(registryEntries));
                     Bukkit.getPluginManager().callEvent(sendEvent);
 
                     // Apply changes made to the registry entries map only if the registry override event was not cancelled.
@@ -61,13 +61,9 @@ public class RegistryHook {
                         continue;
                     }
 
-                    for (final var overriddenEntry : registryEntries.entrySet()) {
-                        JsonObject registryEntryHolder;
-
-                        if ((registryEntryHolder = registryEntryHolders.get(overriddenEntry.getKey())) != null) {
-                            // Only replace if present to prevent handlers that add new registry entries from having any effect.
-                            registryEntryHolder.add("element", overriddenEntry.getValue());
-                        }
+                    for (var overriddenEntry : registryEntries.entrySet()) {
+                        JsonObject registryEntryHolder = registryEntryHolders.get(overriddenEntry.getKey());
+                        registryEntryHolder.add("element", overriddenEntry.getValue());
                     }
 
                 }
