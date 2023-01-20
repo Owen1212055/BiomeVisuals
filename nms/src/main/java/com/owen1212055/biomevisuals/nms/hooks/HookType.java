@@ -6,10 +6,10 @@ import java.util.*;
 
 public enum HookType {
     BIOME(NamespacedKey.minecraft("worldgen/biome")),
-    DIMENSION(NamespacedKey.minecraft("dimension_type")),
+    //DIMENSION(NamespacedKey.minecraft("dimension_type")),
     ;
 
-    private static final Map<NamespacedKey, HookType> HOOK_MAP = new HashMap<>();
+    private static final Map<NamespacedKey, HookType> HOOK_MAP = new HashMap<>(values().length);
 
     static {
         for (HookType type : values()) {
