@@ -11,6 +11,8 @@ import org.slf4j.*;
 
 import java.util.*;
 
+import static java.util.Map.Entry;
+
 public class RegistryHook {
 
     private static Logger LOGGER;
@@ -37,7 +39,7 @@ public class RegistryHook {
 
                 JsonObject mainRegistry = result.get().orThrow().getAsJsonObject();
                 // Iterate through hooked registry types
-                for (var hookedTypeKey : HookType.getKeys()) {
+                for (var hookedTypeKey : RegistryType.getKeys()) {
                     // Retrieve the registry array
                     JsonArray registry = mainRegistry.get(hookedTypeKey.toString()).getAsJsonObject().getAsJsonArray("value");
 
@@ -45,7 +47,7 @@ public class RegistryHook {
                     Map<NamespacedKey, JsonObject> registryEntries = new HashMap<>(registry.size());
                     Map<NamespacedKey, JsonObject> registryEntryHolders = new HashMap<>(registry.size());
                     for (JsonElement jsonElement : registry) {
-                        var namespacedKey = NamespacedKey.fromString(jsonElement.getAsJsonObject().get("name").getAsString());
+                        NamespacedKey namespacedKey = NamespacedKey.fromString(jsonElement.getAsJsonObject().get("name").getAsString());
 
                         // Event listeners are handed a copy of the JSON structure, so any changes to it won't affect the decoded registry yet.
                         registryEntries.put(namespacedKey, jsonElement.getAsJsonObject().getAsJsonObject("element").deepCopy());
@@ -53,7 +55,7 @@ public class RegistryHook {
                     }
 
                     // Let event handlers observe and modify the registry data, but not add or remove entries in the registry.
-                    var sendEvent = new RegistrySendEvent(hookedTypeKey, Collections.unmodifiableMap(registryEntries));
+                    RegistrySendEvent sendEvent = new RegistrySendEvent(hookedTypeKey, Collections.unmodifiableMap(registryEntries));
                     Bukkit.getPluginManager().callEvent(sendEvent);
 
                     // Apply changes made to the registry entries map only if the registry override event was not cancelled.
@@ -61,7 +63,7 @@ public class RegistryHook {
                         continue;
                     }
 
-                    for (var overriddenEntry : registryEntries.entrySet()) {
+                    for (Entry<NamespacedKey, JsonObject> overriddenEntry : registryEntries.entrySet()) {
                         JsonObject registryEntryHolder = registryEntryHolders.get(overriddenEntry.getKey());
                         registryEntryHolder.add("element", overriddenEntry.getValue());
                     }

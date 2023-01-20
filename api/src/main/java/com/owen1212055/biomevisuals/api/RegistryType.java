@@ -1,25 +1,25 @@
-package com.owen1212055.biomevisuals.nms.hooks;
+package com.owen1212055.biomevisuals.api;
 
 import org.bukkit.*;
 
 import java.util.*;
 
-public enum HookType {
+public enum RegistryType {
     BIOME(NamespacedKey.minecraft("worldgen/biome")),
     //DIMENSION(NamespacedKey.minecraft("dimension_type")),
     ;
 
-    private static final Map<NamespacedKey, HookType> HOOK_MAP = new HashMap<>(values().length);
+    private static final Map<NamespacedKey, RegistryType> HOOK_MAP = new HashMap<>(values().length);
 
     static {
-        for (HookType type : values()) {
+        for (RegistryType type : values()) {
             HOOK_MAP.put(type.key, type);
         }
     }
 
     private final NamespacedKey key;
 
-    HookType(NamespacedKey key) {
+    RegistryType(NamespacedKey key) {
         this.key = key;
     }
 
@@ -27,7 +27,7 @@ public enum HookType {
         return key;
     }
 
-    public static HookType getType(NamespacedKey key) {
+    public static RegistryType getType(NamespacedKey key) {
         return HOOK_MAP.get(key);
     }
 
