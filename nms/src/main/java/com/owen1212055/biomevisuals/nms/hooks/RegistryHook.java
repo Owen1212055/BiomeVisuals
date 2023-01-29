@@ -4,11 +4,12 @@ import com.google.gson.*;
 import com.mojang.datafixers.util.*;
 import com.mojang.serialization.*;
 import com.owen1212055.biomevisuals.api.*;
+import com.owen1212055.biomevisuals.api.events.BiomeRegistrySendEvent;
+import com.owen1212055.biomevisuals.api.events.RegistrySendEvent;
 import com.owen1212055.biomevisuals.api.types.biome.BiomeData;
 import com.owen1212055.biomevisuals.nms.*;
 import net.minecraft.core.*;
 import org.bukkit.*;
-import org.bukkit.event.*;
 import org.slf4j.*;
 
 import java.util.*;

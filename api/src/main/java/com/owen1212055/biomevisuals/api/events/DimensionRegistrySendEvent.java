@@ -1,4 +1,4 @@
-package com.owen1212055.biomevisuals.api;
+package com.owen1212055.biomevisuals.api.events;
 
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.HandlerList;

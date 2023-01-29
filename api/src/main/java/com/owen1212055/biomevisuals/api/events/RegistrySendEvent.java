@@ -1,5 +1,6 @@
-package com.owen1212055.biomevisuals.api;
+package com.owen1212055.biomevisuals.api.events;
 
+import com.owen1212055.biomevisuals.api.OverrideRegistry;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;

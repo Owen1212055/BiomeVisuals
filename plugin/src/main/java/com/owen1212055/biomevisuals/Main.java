@@ -2,6 +2,7 @@ package com.owen1212055.biomevisuals;
 
 import com.google.gson.*;
 import com.owen1212055.biomevisuals.api.*;
+import com.owen1212055.biomevisuals.api.events.BiomeRegistrySendEvent;
 import com.owen1212055.biomevisuals.api.types.biome.*;
 import com.owen1212055.biomevisuals.commands.*;
 import com.owen1212055.biomevisuals.nms.*;
