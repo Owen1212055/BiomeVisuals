@@ -1,9 +1,9 @@
 package com.owen1212055.biomevisuals.api;
 
-import com.owen1212055.biomevisuals.api.types.biome.*;
-import org.bukkit.*;
+import com.owen1212055.biomevisuals.api.types.biome.BiomeData;
+import org.bukkit.NamespacedKey;
 
-import java.util.function.*;
+import java.util.function.BooleanSupplier;
 
 public interface OverrideRegistry {
 

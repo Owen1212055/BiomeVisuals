@@ -1,13 +1,14 @@
 package com.owen1212055.biomevisuals.parsers.booleans;
 
-import com.google.gson.*;
-import com.owen1212055.biomevisuals.*;
-import com.owen1212055.biomevisuals.parsers.booleans.impl.*;
-import org.bukkit.*;
+import com.google.gson.JsonObject;
+import com.owen1212055.biomevisuals.Main;
+import com.owen1212055.biomevisuals.parsers.booleans.impl.DateBooleanProvider;
+import com.owen1212055.biomevisuals.parsers.booleans.impl.StaticBooleanProvider;
+import org.bukkit.NamespacedKey;
 
-import javax.naming.*;
-import java.util.*;
-import java.util.function.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.BooleanSupplier;
 
 public class BooleanProviderRegistry {
 

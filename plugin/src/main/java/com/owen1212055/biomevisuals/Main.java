@@ -1,30 +1,37 @@
 package com.owen1212055.biomevisuals;
 
-import com.google.gson.*;
-import com.owen1212055.biomevisuals.api.*;
-import com.owen1212055.biomevisuals.api.events.BiomeRegistrySendEvent;
-import com.owen1212055.biomevisuals.api.types.biome.*;
-import com.owen1212055.biomevisuals.commands.*;
-import com.owen1212055.biomevisuals.nms.*;
-import com.owen1212055.biomevisuals.nms.hooks.*;
-import com.owen1212055.biomevisuals.parsers.*;
-import org.bstats.bukkit.*;
-import org.bstats.charts.*;
-import org.bukkit.*;
-import org.bukkit.event.*;
-import org.bukkit.plugin.java.*;
-import org.jetbrains.annotations.*;
-import org.slf4j.*;
+import com.owen1212055.biomevisuals.api.OverrideRegistry;
+import com.owen1212055.biomevisuals.api.RegistryType;
+import com.owen1212055.biomevisuals.api.types.biome.BiomeData;
+import com.owen1212055.biomevisuals.commands.BiomeVisualCommand;
+import com.owen1212055.biomevisuals.listeners.RegistryListener;
+import com.owen1212055.biomevisuals.nms.JsonAdapter;
+import com.owen1212055.biomevisuals.nms.KeyedOverride;
+import com.owen1212055.biomevisuals.nms.hooks.RegistryHook;
+import com.owen1212055.biomevisuals.parsers.OverrideParser;
+import org.bstats.bukkit.Metrics;
+import org.bstats.charts.AdvancedPie;
+import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
+import org.bukkit.event.Listener;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.slf4j.Logger;
 
-import java.nio.file.*;
-import java.util.*;
-import java.util.function.*;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.BooleanSupplier;
 
 public class Main extends JavaPlugin implements OverrideRegistry, Listener {
 
     public static boolean HOOK_ACTIVE = false;
-    private static Main instance;
     public static Logger LOGGER;
+    private static Main instance;
+
+    private final Map<RegistryType, List<KeyedOverride>> registeredOverrides = new EnumMap<>(RegistryType.class);
 
     public static Main getInstance() {
         return instance;
@@ -33,8 +40,6 @@ public class Main extends JavaPlugin implements OverrideRegistry, Listener {
     public static Path getDataPath() {
         return getInstance().getDataFolder().toPath().resolve("overrides");
     }
-
-    public static final Map<RegistryType, List<KeyedOverride>> OVERRIDES = new EnumMap<>(RegistryType.class);
 
     @Override
     public void onEnable() {
@@ -53,7 +58,7 @@ public class Main extends JavaPlugin implements OverrideRegistry, Listener {
 
             int overrideCount = 0;
             for (Map<RegistryType, List<KeyedOverride>> map : overrides) {
-                Main.OVERRIDES.putAll(map);
+                this.registeredOverrides.putAll(map);
                 for (RegistryType type : map.keySet()) {
                     overrideCount += map.get(type).size();
                 }
@@ -64,22 +69,22 @@ public class Main extends JavaPlugin implements OverrideRegistry, Listener {
             LOGGER.error("Error registering/reading custom overrides", e);
         }
 
-        Bukkit.getCommandMap().register("bv", new BiomeVisualCommand());
-
+        Bukkit.getCommandMap().register("bv", new BiomeVisualCommand(this));
         Bukkit.getPluginManager().registerEvents(this, this);
+        Bukkit.getPluginManager().registerEvents(new RegistryListener(this), this);
 
         Metrics metrics = new Metrics(this, 13696);
         metrics.addCustomChart(new AdvancedPie("overridden_registries", () -> {
-            Map<String, Integer> hookedRegisteries = new HashMap<>(Main.OVERRIDES.size());
-            for (Map.Entry<RegistryType, List<KeyedOverride>> value : Main.OVERRIDES.entrySet()) {
+            Map<String, Integer> hookedRegisteries = new HashMap<>(this.registeredOverrides.size());
+            for (Map.Entry<RegistryType, List<KeyedOverride>> value : this.registeredOverrides.entrySet()) {
                 hookedRegisteries.put(value.getKey().getKey().toString(), value.getValue().size());
             }
 
             return hookedRegisteries;
         }));
         metrics.addCustomChart(new AdvancedPie("overridden_types", () -> {
-            Map<String, Integer> hookedRegisteries = new HashMap<>(Main.OVERRIDES.size());
-            for (List<KeyedOverride> value : Main.OVERRIDES.values()) {
+            Map<String, Integer> hookedRegisteries = new HashMap<>(this.registeredOverrides.size());
+            for (List<KeyedOverride> value : this.registeredOverrides.values()) {
                 for (KeyedOverride override : value) {
                     String key = override.key().toString();
                     int previous = hookedRegisteries.getOrDefault(key, 1);
@@ -94,45 +99,12 @@ public class Main extends JavaPlugin implements OverrideRegistry, Listener {
 
     @Override
     public void onDisable() {
-        OVERRIDES.clear();
-
+        registeredOverrides.clear();
         HOOK_ACTIVE = false;
     }
 
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void onRegistrySend(final @NotNull BiomeRegistrySendEvent event) {
-        List<KeyedOverride> keyedOverrides = OVERRIDES.get(RegistryType.BIOME);
-        if (keyedOverrides == null) {
-            return;
-        }
 
-        Map<NamespacedKey, BiomeData> registryEntries = event.getRegistryEntries();
-        for (KeyedOverride keyedOverride : keyedOverrides) {
-            if (!keyedOverride.valid().getAsBoolean()) {
-                continue;
-            }
-
-            BiomeData registryEntry = registryEntries.get(keyedOverride.key());
-            if (registryEntry == null) {
-                continue;
-            }
-
-            // Convert the registry data holder to a JSON object for merging.
-            // Then convert the merged JSON object back to a data holder object
-            JsonObject registryEntryObject = JsonAdapter.adapt(registryEntry);
-            mergeObject(registryEntryObject, keyedOverride.object());
-            registryEntries.put(keyedOverride.key(), JsonAdapter.adapt(registryEntryObject, BiomeData.class));
-        }
-    }
-
-    @Override
-    public void registerBiomeOverride(NamespacedKey biomeKey, BiomeData data, BooleanSupplier isValid) {
-        List<KeyedOverride> overrides = OVERRIDES.computeIfAbsent(RegistryType.BIOME, k -> new ArrayList<>());
-
-        overrides.add(new KeyedOverride(biomeKey, JsonAdapter.adapt(data), isValid, false));
-    }
-
-//    @Override
+    //    @Override
 //    public void registerDimensionOverride(NamespacedKey dimensionKey, DimensionData data, BooleanSupplier isValid) {
 //        List<KeyedOverride> overrides;
 //        if (OVERRIDES.containsKey(HookType.DIMENSION)) {
@@ -144,23 +116,13 @@ public class Main extends JavaPlugin implements OverrideRegistry, Listener {
 //
 //        overrides.add(new KeyedOverride(dimensionKey, GSON.toJsonTree(data).getAsJsonObject()));
 //    }
-
-    private static void mergeObject(JsonObject into, JsonObject merging) {
-        for (String overrideKey : merging.keySet()) {
-            JsonElement element = merging.get(overrideKey);
-
-            if (element.isJsonObject()) {
-                JsonElement original = into.get(overrideKey);
-                if (original != null && original.isJsonObject()) {
-                    mergeObject(original.getAsJsonObject(), element.getAsJsonObject());
-                } else {
-                    into.add(overrideKey, element);
-                }
-            } else {
-                into.add(overrideKey, element);
-            }
-
-        }
+    @Override
+    public void registerBiomeOverride(NamespacedKey biomeKey, BiomeData data, BooleanSupplier isValid) {
+        List<KeyedOverride> overrides = registeredOverrides.computeIfAbsent(RegistryType.BIOME, k -> new ArrayList<>());
+        overrides.add(new KeyedOverride(biomeKey, JsonAdapter.adapt(data), isValid, false));
     }
 
+    public Map<RegistryType, List<KeyedOverride>> getRegisteredOverrides() {
+        return registeredOverrides;
+    }
 }

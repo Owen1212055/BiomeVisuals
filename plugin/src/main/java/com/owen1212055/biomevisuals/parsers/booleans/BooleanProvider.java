@@ -1,6 +1,6 @@
 package com.owen1212055.biomevisuals.parsers.booleans;
 
-import com.google.gson.*;
+import com.google.gson.JsonObject;
 
 public interface BooleanProvider {
 

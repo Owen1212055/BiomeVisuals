@@ -1,8 +1,9 @@
 package com.owen1212055.biomevisuals.api.types.biome.effect;
 
-import org.jetbrains.annotations.*;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public enum GrassModifier {
 

@@ -1,9 +1,11 @@
 package com.owen1212055.biomevisuals.api;
 
 import com.owen1212055.biomevisuals.api.types.biome.BiomeData;
-import org.bukkit.*;
+import org.bukkit.NamespacedKey;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 public enum RegistryType {
     BIOME(NamespacedKey.minecraft("worldgen/biome"), BiomeData.class),

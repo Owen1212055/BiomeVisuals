@@ -1,15 +1,22 @@
 package com.owen1212055.biomevisuals.parsers;
 
-import com.google.gson.*;
-import com.owen1212055.biomevisuals.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.owen1212055.biomevisuals.Main;
 import com.owen1212055.biomevisuals.api.RegistryType;
-import com.owen1212055.biomevisuals.nms.*;
-import com.owen1212055.biomevisuals.parsers.booleans.*;
-import org.bukkit.*;
+import com.owen1212055.biomevisuals.nms.KeyedOverride;
+import com.owen1212055.biomevisuals.parsers.booleans.BooleanProviderRegistry;
+import org.bukkit.NamespacedKey;
 
-import java.io.*;
-import java.nio.file.*;
-import java.util.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
 
 public class OverrideParser {
 

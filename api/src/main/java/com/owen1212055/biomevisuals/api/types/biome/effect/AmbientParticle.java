@@ -1,7 +1,8 @@
 package com.owen1212055.biomevisuals.api.types.biome.effect;
 
-import org.bukkit.*;
-import org.jetbrains.annotations.*;
+import org.bukkit.Particle;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public record AmbientParticle(@NotNull Particle particle, @Nullable Object data, float probability) {
 

@@ -1,11 +1,11 @@
 package com.owen1212055.biomevisuals.parsers.booleans.impl;
 
-import com.google.gson.*;
-import com.owen1212055.biomevisuals.parsers.booleans.*;
+import com.google.gson.JsonObject;
+import com.owen1212055.biomevisuals.parsers.booleans.BooleanProvider;
 
-import java.time.*;
-import java.time.format.*;
-import java.time.temporal.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
 
 public class DateBooleanProvider implements BooleanProvider {
 

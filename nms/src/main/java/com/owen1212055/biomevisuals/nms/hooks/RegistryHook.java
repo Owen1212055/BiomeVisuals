@@ -1,18 +1,28 @@
 package com.owen1212055.biomevisuals.nms.hooks;
 
-import com.google.gson.*;
-import com.mojang.datafixers.util.*;
-import com.mojang.serialization.*;
-import com.owen1212055.biomevisuals.api.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.JsonOps;
+import com.owen1212055.biomevisuals.api.RegistryType;
 import com.owen1212055.biomevisuals.api.events.BiomeRegistrySendEvent;
 import com.owen1212055.biomevisuals.api.events.RegistrySendEvent;
 import com.owen1212055.biomevisuals.api.types.biome.BiomeData;
-import com.owen1212055.biomevisuals.nms.*;
-import net.minecraft.core.*;
-import org.bukkit.*;
-import org.slf4j.*;
+import com.owen1212055.biomevisuals.nms.JsonAdapter;
+import com.owen1212055.biomevisuals.nms.UnsafeUtils;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.RegistrySynchronization;
+import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
+import org.slf4j.Logger;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 import static java.util.Map.Entry;
 
@@ -33,7 +43,7 @@ public class RegistryHook {
             @Override
             public <T> DataResult<T> encode(RegistryAccess input, DynamicOps<T> ops, T prefix) {
                 DataResult<JsonElement> result = CAPTURED_CODEC.encode(input, JsonOps.INSTANCE, JsonOps.INSTANCE.empty());
-                var optionalError = result.error();
+                Optional<DataResult.PartialResult<JsonElement>> optionalError = result.error();
                 if (optionalError.isPresent()) {
                     LOGGER.warn("Failed to encode to JSON: " + optionalError.get().message());
                     LOGGER.info("Sending client default data instead to circumvent this.");
@@ -42,7 +52,7 @@ public class RegistryHook {
 
                 JsonObject mainRegistry = result.get().orThrow().getAsJsonObject();
                 // Iterate through hooked registry types
-                for (var hookedType : RegistryType.values()) {
+                for (RegistryType hookedType : RegistryType.values()) {
                     // Retrieve the registry array
                     JsonArray registry = mainRegistry.get(hookedType.getKey().toString()).getAsJsonObject().getAsJsonArray("value");
 
@@ -90,7 +100,7 @@ public class RegistryHook {
                 }
 
                 // Decode it back into NMS type from json
-                var dataresult = CAPTURED_CODEC.decode(JsonOps.INSTANCE, mainRegistry);
+                DataResult<Pair<RegistryAccess, JsonElement>> dataresult = CAPTURED_CODEC.decode(JsonOps.INSTANCE, mainRegistry);
                 // Fail?
                 if (dataresult.error().isPresent()) {
                     LOGGER.warn("Failed to encode hooked data: {}", dataresult.error().get().message());

@@ -1,7 +1,7 @@
 package com.owen1212055.biomevisuals.api.types.dimension;
 
-import org.bukkit.*;
-import org.jetbrains.annotations.*;
+import org.bukkit.NamespacedKey;
+import org.jetbrains.annotations.NotNull;
 
 // Not Implemented
 @Deprecated

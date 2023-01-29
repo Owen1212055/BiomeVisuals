@@ -1,8 +1,7 @@
 package com.owen1212055.biomevisuals.api.types.biome;
 
-import com.owen1212055.biomevisuals.api.RegistryType;
-
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public enum BiomeCategory {
     NONE("none"),

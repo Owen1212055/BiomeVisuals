@@ -1,8 +1,9 @@
 package com.owen1212055.biomevisuals.api.types.biome.effect;
 
-import com.google.gson.annotations.*;
-import org.bukkit.*;
-import org.jetbrains.annotations.*;
+import com.google.gson.annotations.SerializedName;
+import org.bukkit.Color;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 
 @ApiStatus.Internal
 public record BiomeEffect(

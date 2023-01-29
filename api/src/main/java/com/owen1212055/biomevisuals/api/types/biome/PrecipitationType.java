@@ -1,6 +1,7 @@
 package com.owen1212055.biomevisuals.api.types.biome;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public enum PrecipitationType {
 
