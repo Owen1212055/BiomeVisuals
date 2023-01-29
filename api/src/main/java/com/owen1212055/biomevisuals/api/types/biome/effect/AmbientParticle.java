@@ -12,7 +12,7 @@ public final class AmbientParticle {
     private final Object data;
     private final float probability;
 
-    AmbientParticle(@NotNull Particle particle, @Nullable Object data, float probability) {
+    private AmbientParticle(@NotNull Particle particle, @Nullable Object data, float probability) {
         this.particle = particle;
         this.data = data;
         this.probability = probability;
