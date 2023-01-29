@@ -4,8 +4,6 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
-
 /**
  * Event fired when a dimension registry is about to be sent to a client during player login.
  *
@@ -15,7 +13,12 @@ import java.util.Map;
 public class DimensionRegistrySendEvent<T> extends RegistrySendEvent<T> {
 
     @Override
-    public @NotNull Map<NamespacedKey, T> getRegistryEntries() {
+    public T getRegistryEntry(NamespacedKey key) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public void setRegistryEntry(NamespacedKey key, T data) {
         throw new UnsupportedOperationException("Not implemented");
     }
 

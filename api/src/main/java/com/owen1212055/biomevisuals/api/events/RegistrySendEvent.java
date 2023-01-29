@@ -4,9 +4,6 @@ import com.owen1212055.biomevisuals.api.OverrideRegistry;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.Map;
 
 /**
  * Event fired when a registry is about to be sent to a client during player login.
@@ -27,7 +24,9 @@ public abstract class RegistrySendEvent<T> extends Event implements Cancellable 
         super(true);
     }
 
-    public abstract @NotNull Map<NamespacedKey, T> getRegistryEntries();
+    public abstract T getRegistryEntry(NamespacedKey key);
+
+    public abstract void setRegistryEntry(NamespacedKey key, T data);
 
     @Override
     public final boolean isCancelled() {
