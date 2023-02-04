@@ -1,12 +1,13 @@
 package com.owen1212055.biomevisuals.api.types.biome.effect;
 
-import org.bukkit.*;
-import org.jetbrains.annotations.*;
+import org.bukkit.Sound;
+import org.jetbrains.annotations.NotNull;
 
 public final class AdditionSound {
 
     @NotNull
     private final Sound soundEvent;
+
     private final double tickChance;
 
     private AdditionSound(@NotNull Sound soundEvent, double tickChance) {
@@ -27,4 +28,5 @@ public final class AdditionSound {
     public double getTickChance() {
         return tickChance;
     }
+
 }

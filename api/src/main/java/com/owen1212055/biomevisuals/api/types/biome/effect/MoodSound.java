@@ -1,7 +1,7 @@
 package com.owen1212055.biomevisuals.api.types.biome.effect;
 
-import org.bukkit.*;
-import org.jetbrains.annotations.*;
+import org.bukkit.Sound;
+import org.jetbrains.annotations.NotNull;
 
 public final class MoodSound {
 
@@ -11,7 +11,7 @@ public final class MoodSound {
     private final int blockSearchExtent;
     private final double soundPositionOffset;
 
-    MoodSound(@NotNull Sound soundEvent, int tickDelay, int blockSearchExtent, double soundPositionOffset) {
+    private MoodSound(@NotNull Sound soundEvent, int tickDelay, int blockSearchExtent, double soundPositionOffset) {
         this.soundEvent = soundEvent;
         this.tickDelay = tickDelay;
         this.blockSearchExtent = blockSearchExtent;
@@ -22,6 +22,7 @@ public final class MoodSound {
         return new MoodSound(soundEvent, tickDelay, blockSearchExtent, soundPositionOffset);
     }
 
+    @NotNull
     public Sound getSoundEvent() {
         return soundEvent;
     }
@@ -37,4 +38,5 @@ public final class MoodSound {
     public double getSoundPositionOffset() {
         return soundPositionOffset;
     }
+
 }

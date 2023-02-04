@@ -1,7 +1,7 @@
 package com.owen1212055.biomevisuals.api.types.biome;
 
-import com.google.gson.annotations.*;
-import com.owen1212055.biomevisuals.api.types.biome.effect.*;
+import com.google.gson.annotations.SerializedName;
+import com.owen1212055.biomevisuals.api.types.biome.effect.BiomeEffect;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal

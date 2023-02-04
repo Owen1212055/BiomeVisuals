@@ -1,18 +1,18 @@
 package com.owen1212055.biomevisuals.api.types.biome.effect;
 
-import org.bukkit.*;
-import org.jetbrains.annotations.*;
+import org.bukkit.Sound;
+import org.jetbrains.annotations.NotNull;
 
 public final class Music {
 
     @NotNull
-    private final Sound event;
+    private final Sound soundEvent;
     private final int minDelay;
     private final int maxDelay;
     private final boolean replaceCurrentMusic;
 
-    private Music(@NotNull Sound event, int minDelay, int maxDelay, boolean replaceCurrentMusic) {
-        this.event = event;
+    private Music(@NotNull Sound soundEvent, int minDelay, int maxDelay, boolean replaceCurrentMusic) {
+        this.soundEvent = soundEvent;
         this.minDelay = minDelay;
         this.maxDelay = maxDelay;
         this.replaceCurrentMusic = replaceCurrentMusic;
@@ -24,8 +24,8 @@ public final class Music {
     }
 
     @NotNull
-    public Sound getSound() {
-        return event;
+    public Sound getSoundEvent() {
+        return soundEvent;
     }
 
     public int getMinDelay() {
@@ -39,4 +39,5 @@ public final class Music {
     public boolean replaceCurrentMusic() {
         return replaceCurrentMusic;
     }
+
 }

@@ -1,7 +1,8 @@
 package com.owen1212055.biomevisuals.api.types.biome.effect;
 
-import org.bukkit.*;
-import org.jetbrains.annotations.*;
+import org.bukkit.Particle;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class AmbientParticle {
 
@@ -11,7 +12,7 @@ public final class AmbientParticle {
     private final Object data;
     private final float probability;
 
-    AmbientParticle(@NotNull Particle particle, @Nullable Object data, float probability) {
+    private AmbientParticle(@NotNull Particle particle, @Nullable Object data, float probability) {
         this.particle = particle;
         this.data = data;
         this.probability = probability;
@@ -40,4 +41,5 @@ public final class AmbientParticle {
     public float getProbability() {
         return probability;
     }
+
 }

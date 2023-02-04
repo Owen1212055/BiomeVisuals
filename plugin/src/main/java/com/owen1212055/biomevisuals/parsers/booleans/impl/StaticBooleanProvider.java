@@ -1,10 +1,7 @@
 package com.owen1212055.biomevisuals.parsers.booleans.impl;
 
-import com.google.gson.*;
-import com.owen1212055.biomevisuals.parsers.booleans.*;
-
-import java.time.*;
-import java.time.temporal.*;
+import com.google.gson.JsonObject;
+import com.owen1212055.biomevisuals.parsers.booleans.BooleanProvider;
 
 public class StaticBooleanProvider implements BooleanProvider {
 

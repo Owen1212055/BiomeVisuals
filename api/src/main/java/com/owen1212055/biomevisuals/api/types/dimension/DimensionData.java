@@ -1,7 +1,7 @@
 package com.owen1212055.biomevisuals.api.types.dimension;
 
-import com.google.gson.annotations.*;
-import org.bukkit.*;
+import com.google.gson.annotations.SerializedName;
+import org.bukkit.NamespacedKey;
 
 // Not Implemented
 @Deprecated

@@ -1,9 +1,8 @@
 package com.owen1212055.biomevisuals.nms;
 
-import sun.misc.*;
+import sun.misc.Unsafe;
 
-import java.lang.invoke.*;
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
 
 public class UnsafeUtils {
 

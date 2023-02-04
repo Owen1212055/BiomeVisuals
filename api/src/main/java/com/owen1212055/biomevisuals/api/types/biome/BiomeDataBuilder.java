@@ -1,7 +1,7 @@
 package com.owen1212055.biomevisuals.api.types.biome;
 
-import com.owen1212055.biomevisuals.api.types.biome.effect.*;
-import org.jetbrains.annotations.*;
+import com.owen1212055.biomevisuals.api.types.biome.effect.BiomeEffect;
+import org.jetbrains.annotations.NotNull;
 
 public class BiomeDataBuilder {
 

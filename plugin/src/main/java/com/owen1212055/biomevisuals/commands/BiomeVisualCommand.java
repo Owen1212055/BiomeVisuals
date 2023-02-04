@@ -1,17 +1,24 @@
 package com.owen1212055.biomevisuals.commands;
 
-import com.google.gson.*;
-import com.owen1212055.biomevisuals.*;
-import com.owen1212055.biomevisuals.nms.*;
-import com.owen1212055.biomevisuals.nms.hooks.*;
-import com.owen1212055.biomevisuals.parsers.*;
-import net.kyori.adventure.text.*;
-import net.kyori.adventure.text.format.*;
-import org.bukkit.*;
-import org.bukkit.command.*;
-import org.jetbrains.annotations.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.owen1212055.biomevisuals.Main;
+import com.owen1212055.biomevisuals.api.RegistryType;
+import com.owen1212055.biomevisuals.nms.KeyedOverride;
+import com.owen1212055.biomevisuals.parsers.OverrideParser;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.JoinConfiguration;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.Location;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 public class BiomeVisualCommand extends Command {
 
@@ -22,8 +29,11 @@ public class BiomeVisualCommand extends Command {
 
     private static final Component PREFIX = Component.text(">> ", ACCENT_COLOR).append(Component.text("BiomeVisuals: ", MAIN_COLOR));
 
-    public BiomeVisualCommand() {
+    private final Main main;
+
+    public BiomeVisualCommand(Main main) {
         super("biomevisuals", "Main command for some utilities with the biome visual plugin.", USAGE_MESSAGE, List.of());
+        this.main = main;
     }
 
     @Override
@@ -48,19 +58,18 @@ public class BiomeVisualCommand extends Command {
         return true;
     }
 
-
     public void reload(CommandSender sender) {
-        for (List<KeyedOverride> value : Main.OVERRIDES.values()) {
+        for (List<KeyedOverride> value : this.main.getRegisteredOverrides().values()) {
             value.removeIf(KeyedOverride::fromFile);
         }
 
         try {
-            List<Map<HookType, List<KeyedOverride>>> overrides = OverrideParser.readOverrides();
+            List<Map<RegistryType, List<KeyedOverride>>> overrides = OverrideParser.readOverrides();
 
             int overrideCount = 0;
-            for (Map<HookType, List<KeyedOverride>> map : overrides) {
-                Main.OVERRIDES.putAll(map);
-                for (HookType type : map.keySet()) {
+            for (Map<RegistryType, List<KeyedOverride>> map : overrides) {
+                this.main.getRegisteredOverrides().putAll(map);
+                for (RegistryType type : map.keySet()) {
                     overrideCount += map.get(type).size();
                 }
             }
@@ -82,7 +91,7 @@ public class BiomeVisualCommand extends Command {
                 .create();
 
 
-        for (Map.Entry<HookType, List<KeyedOverride>> entry : Main.OVERRIDES.entrySet()) {
+        for (Map.Entry<RegistryType, List<KeyedOverride>> entry : this.main.getRegisteredOverrides().entrySet()) {
             sender.sendMessage(Component.text("Hook Type:", ACCENT_COLOR, TextDecoration.BOLD));
             sender.sendMessage(Component.text(entry.getKey().getKey().toString(), TEXT_COLOR));
 

@@ -1,20 +1,27 @@
 package com.owen1212055.biomevisuals.parsers;
 
-import com.google.gson.*;
-import com.owen1212055.biomevisuals.*;
-import com.owen1212055.biomevisuals.nms.*;
-import com.owen1212055.biomevisuals.nms.hooks.*;
-import com.owen1212055.biomevisuals.parsers.booleans.*;
-import org.bukkit.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.owen1212055.biomevisuals.Main;
+import com.owen1212055.biomevisuals.api.RegistryType;
+import com.owen1212055.biomevisuals.nms.KeyedOverride;
+import com.owen1212055.biomevisuals.parsers.booleans.BooleanProviderRegistry;
+import org.bukkit.NamespacedKey;
 
-import java.io.*;
-import java.nio.file.*;
-import java.util.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
 
 public class OverrideParser {
 
 
-    public static List<Map<HookType, List<KeyedOverride>>> readOverrides() {
+    public static List<Map<RegistryType, List<KeyedOverride>>> readOverrides() {
         Path mainPath = Main.getDataPath();
         try {
             if (!Files.exists(mainPath)) {
@@ -36,12 +43,12 @@ public class OverrideParser {
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
-                        Map<HookType, List<KeyedOverride>> registry = new EnumMap<>(HookType.class);
+                        Map<RegistryType, List<KeyedOverride>> registry = new EnumMap<>(RegistryType.class);
 
                         for (String key : data.keySet()) {
-                            HookType type = HookType.getType(NamespacedKey.fromString(key));
+                            RegistryType type = RegistryType.getType(NamespacedKey.fromString(key));
                             if (type == null) {
-                                throw new IllegalArgumentException("Invalid hook provided, pick: " + HookType.getKeys());
+                                throw new IllegalArgumentException("Invalid hook provided, pick: " + RegistryType.getKeys());
                             }
                             List<KeyedOverride> overrideRegistry = registry.computeIfAbsent(type, k -> new ArrayList<>());
 
