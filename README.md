@@ -33,6 +33,37 @@ registry.registerBiomeOverride(NamespacedKey.minecraft("plains"), BiomeDataBuild
                 .build());
  ```
  
+ You also have the ability to manually set overrides by listening to an event. Note, this will not merge with the pre-existing entry, but will instead override it entirely.
+ ```java
+ @EventHandler
+    public void onRegistrySend(final @NotNull BiomeRegistrySendEvent event) {
+        event.setRegistryEntry(NamespacedKey.minecraft("plains"),
+                BiomeDataBuilder.newBuilder()
+                        .temperature(5f)
+                        .precipitation(PrecipitationType.SNOW)
+                        .temperatureModifier(TemperatureModifier.FROZEN)
+                        .downfall(5F)
+                        .category(BiomeCategory.BEACH)
+                        .effect(
+                                BiomeEffectBuilder.newBuilder()
+                                        .foliageColorOverride(Color.BLACK)
+                                        .grassColorOverride(Color.OLIVE)
+                                        .skyColor(Color.GREEN)
+                                        .waterColor(Color.FUCHSIA)
+                                        .waterFogColor(Color.AQUA)
+                                        .fogColor(Color.BLUE)
+                                        .grassColorModifier(GrassModifier.DARK_FOREST)
+                                        .ambientParticle(AmbientParticle.of(Particle.ASH, 5, null))
+                                        .ambientSound(AmbientSound.of(Sound.ITEM_GOAT_HORN_SOUND_0))
+                                        .moodSound(MoodSound.of(Sound.ITEM_GOAT_HORN_SOUND_0, 1, 1, 1))
+                                        .additionSound(AdditionSound.of(Sound.ITEM_GOAT_HORN_SOUND_2, 5))
+                                        .music(Music.of(Sound.AMBIENT_BASALT_DELTAS_ADDITIONS, 1, 1, true))
+                                        .build()
+                        )
+                        .build());
+```
+ 
+ 
 #### File Importing
 The plugin will automatically try to import overrides that are defined in the ``overrides`` directory located in the plugin directory. (``BiomeVisuals/overrides``)
 Inorder to add an override, you must first define the registry type that you are overriding. This is incase if any new overrides are added in the future.
