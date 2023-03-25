@@ -6,7 +6,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
 public record BiomeData(
-        PrecipitationType precipitation, Float temperature,
+        @SerializedName("has_precipitation") boolean hasPrecipitation, Float temperature,
         @SerializedName("temperature_modifier") TemperatureModifier temperatureModifier,
         Float downfall, BiomeCategory category, BiomeEffect effects) {
 }

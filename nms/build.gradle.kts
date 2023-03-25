@@ -9,10 +9,12 @@ version = "1.0"
 
 repositories {
     mavenCentral()
+    maven("https://s01.oss.sonatype.org/content/repositories/snapshots/")
 }
 
 dependencies {
-    paperDevBundle("1.19.3-R0.1-SNAPSHOT")
+    paperDevBundle("1.19.4-R0.1-SNAPSHOT")
+    implementation("xyz.jpenilla", "reflection-remapper", "0.1.0-SNAPSHOT")
 
     implementation(project(":api")) {
         isTransitive = false

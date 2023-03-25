@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class BiomeDataBuilder {
 
-    private PrecipitationType precipitation;
+    private boolean hasPrecipitation;
     private Float temperature;
     private TemperatureModifier temperatureModifier;
     private Float downfall;
@@ -20,13 +20,13 @@ public class BiomeDataBuilder {
     }
 
     /**
-     * Sets what type of precipitation will occur in this biome.
+     * Sets if precipitation occurs in this biome
      *
-     * @param precipitationType type of precipitation
+     * @param precipitation has precipitation
      * @return self
      */
-    public BiomeDataBuilder precipitation(PrecipitationType precipitationType) {
-        this.precipitation = precipitationType;
+    public BiomeDataBuilder hasPrecipitation(boolean hasPrecipitation) {
+        this.hasPrecipitation = hasPrecipitation;
         return this;
     }
 
@@ -104,7 +104,7 @@ public class BiomeDataBuilder {
 
     @NotNull
     public BiomeData build() {
-        return new BiomeData(precipitation, temperature, temperatureModifier, downfall, category, effect);
+        return new BiomeData(hasPrecipitation, temperature, temperatureModifier, downfall, category, effect);
     }
 
 }

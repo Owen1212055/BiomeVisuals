@@ -11,7 +11,6 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.owen1212055.biomevisuals.api.types.biome.BiomeCategory;
-import com.owen1212055.biomevisuals.api.types.biome.PrecipitationType;
 import com.owen1212055.biomevisuals.api.types.biome.TemperatureModifier;
 import com.owen1212055.biomevisuals.api.types.biome.effect.AdditionSound;
 import com.owen1212055.biomevisuals.api.types.biome.effect.AmbientParticle;
@@ -178,23 +177,6 @@ public class JsonAdapter {
             public BiomeCategory deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
                 try {
                     return Objects.requireNonNull(BiomeCategory.getBiomeCategory(json.getAsJsonPrimitive().getAsString()));
-                } catch (Exception e) {
-                    throw new JsonParseException(e);
-                }
-            }
-
-        });
-        builder.registerTypeAdapter(PrecipitationType.class, new JsonDeserializerAndSerializer<PrecipitationType>() {
-
-            @Override
-            public JsonElement serialize(PrecipitationType src, Type typeOfSrc, JsonSerializationContext context) {
-                return new JsonPrimitive(src.getKey());
-            }
-
-            @Override
-            public PrecipitationType deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-                try {
-                    return Objects.requireNonNull(PrecipitationType.getPrecipitationType(json.getAsJsonPrimitive().getAsString()));
                 } catch (Exception e) {
                     throw new JsonParseException(e);
                 }

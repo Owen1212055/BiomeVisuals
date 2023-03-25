@@ -16,14 +16,24 @@ import net.minecraft.world.level.biome.AmbientMoodSettings;
 import net.minecraft.world.level.biome.AmbientParticleSettings;
 import org.bukkit.Registry;
 import org.bukkit.Sound;
-import org.bukkit.craftbukkit.v1_19_R2.CraftParticle;
-import org.bukkit.craftbukkit.v1_19_R2.CraftSound;
-import org.bukkit.craftbukkit.v1_19_R2.util.CraftNamespacedKey;
+import org.bukkit.craftbukkit.v1_19_R3.CraftParticle;
+import org.bukkit.craftbukkit.v1_19_R3.CraftSound;
+import org.bukkit.craftbukkit.v1_19_R3.util.CraftNamespacedKey;
 
 import java.lang.reflect.Field;
 import java.util.Objects;
 
 public class ApiEntityConverter {
+
+    private static final Field probabilityField;
+    static {
+        try {
+            probabilityField = AmbientParticleSettings.class.getDeclaredField(Mappings.AMBIENT_PARTICLE_PROBABILITY);
+            probabilityField.setAccessible(true);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public static JsonElement serialize(AdditionSound sound) {
         AmbientAdditionsSettings settings = new AmbientAdditionsSettings(Holder.direct(CraftSound.getSoundEffect(sound.getSoundEvent())), sound.getTickChance());
@@ -47,11 +57,8 @@ public class ApiEntityConverter {
         AmbientParticleSettings settings = AmbientParticleSettings.CODEC.decode(JsonOps.INSTANCE, particle).map(Pair::getFirst).result().orElseThrow();
 
         try {
-            // "c" is the obfuscated field name for AmbientParticleSettings#probability, which is encapsulated
-            Field probabilityField = AmbientParticleSettings.class.getDeclaredField("c");
-            probabilityField.setAccessible(true);
             return AmbientParticle.of(CraftParticle.toBukkit(settings.getOptions()), (float) probabilityField.get(settings));
-        } catch (ReflectiveOperationException e) {
+        } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
