@@ -33,6 +33,7 @@ public class BiomeVisualCommand extends Command {
 
     public BiomeVisualCommand(Main main) {
         super("biomevisuals", "Main command for some utilities with the biome visual plugin.", USAGE_MESSAGE, List.of());
+        this.setPermission("biomevisuals.command");
         this.main = main;
     }
 
