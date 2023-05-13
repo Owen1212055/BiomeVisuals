@@ -1,14 +1,14 @@
 package com.owen1212055.biomevisuals.nms;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
-import com.owen1212055.biomevisuals.api.types.biome.effect.AdditionSound;
-import com.owen1212055.biomevisuals.api.types.biome.effect.AmbientParticle;
-import com.owen1212055.biomevisuals.api.types.biome.effect.AmbientSound;
-import com.owen1212055.biomevisuals.api.types.biome.effect.MoodSound;
-import com.owen1212055.biomevisuals.api.types.biome.effect.Music;
+import com.owen1212055.biomevisuals.api.types.biome.effect.*;
 import net.minecraft.core.Holder;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.level.biome.AmbientAdditionsSettings;
@@ -26,6 +26,7 @@ import java.util.Objects;
 public class ApiEntityConverter {
 
     private static final Field probabilityField;
+
     static {
         try {
             probabilityField = AmbientParticleSettings.class.getDeclaredField(Mappings.AMBIENT_PARTICLE_PROBABILITY);
@@ -38,26 +39,27 @@ public class ApiEntityConverter {
     public static JsonElement serialize(AdditionSound sound) {
         AmbientAdditionsSettings settings = new AmbientAdditionsSettings(Holder.direct(CraftSound.getSoundEffect(sound.getSoundEvent())), sound.getTickChance());
 
-        return AmbientAdditionsSettings.CODEC.encode(settings, JsonOps.INSTANCE, JsonOps.INSTANCE.empty()).get().orThrow();
+        return encode(AmbientAdditionsSettings.CODEC, settings);
     }
 
     public static AdditionSound deserializeAdditionSound(JsonElement sound) {
-        AmbientAdditionsSettings settings = AmbientAdditionsSettings.CODEC.decode(JsonOps.INSTANCE, sound).map(Pair::getFirst).result().orElseThrow();
+        AmbientAdditionsSettings settings = decode(AmbientAdditionsSettings.CODEC, sound);
 
         return AdditionSound.of(Objects.requireNonNull(nmsSoundEventToBukkit(settings.getSoundEvent().value())), settings.getTickChance());
     }
 
     public static JsonElement serialize(AmbientParticle particle) {
-        AmbientParticleSettings settings = new AmbientParticleSettings(CraftParticle.toNMS(particle.getParticle(), particle.getData()), particle.getProbability());
+        ParticleOptions options = decode(ParticleTypes.CODEC, particle.getParticle());
+        AmbientParticleSettings settings = new AmbientParticleSettings(options, particle.getProbability());
 
-        return AmbientParticleSettings.CODEC.encode(settings, JsonOps.INSTANCE, JsonOps.INSTANCE.empty()).get().orThrow();
+        return encode(AmbientParticleSettings.CODEC, settings);
     }
 
     public static AmbientParticle deserializeAmbientParticle(JsonElement particle) {
-        AmbientParticleSettings settings = AmbientParticleSettings.CODEC.decode(JsonOps.INSTANCE, particle).map(Pair::getFirst).result().orElseThrow();
+        AmbientParticleSettings settings = decode(AmbientParticleSettings.CODEC, particle);
 
         try {
-            return AmbientParticle.of(CraftParticle.toBukkit(settings.getOptions()), (float) probabilityField.get(settings));
+            return AmbientParticle.of((float) probabilityField.get(settings), (JsonObject) encode(ParticleTypes.CODEC, settings.getOptions()));
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -66,11 +68,11 @@ public class ApiEntityConverter {
     public static JsonElement serialize(AmbientSound ambientSound) {
         SoundEvent soundEvent = SoundEvent.createVariableRangeEvent(new ResourceLocation(ambientSound.getSoundEvent().getKey().toString()));
 
-        return SoundEvent.CODEC.encode(Holder.direct(soundEvent), JsonOps.INSTANCE, JsonOps.INSTANCE.empty()).get().orThrow();
+        return encode(SoundEvent.CODEC, Holder.direct(soundEvent));
     }
 
     public static AmbientSound deserializeAmbientSound(JsonElement ambientSound) {
-        Holder<SoundEvent> soundEvent = SoundEvent.CODEC.decode(JsonOps.INSTANCE, ambientSound).map(Pair::getFirst).result().orElseThrow();
+        Holder<SoundEvent> soundEvent = decode(SoundEvent.CODEC, ambientSound);
 
         return AmbientSound.of(Objects.requireNonNull(nmsSoundEventToBukkit(soundEvent.value())));
     }
@@ -78,11 +80,11 @@ public class ApiEntityConverter {
     public static JsonElement serialize(MoodSound moodSound) {
         AmbientMoodSettings settings = new AmbientMoodSettings(Holder.direct(CraftSound.getSoundEffect(moodSound.getSoundEvent())), moodSound.getTickDelay(), moodSound.getBlockSearchExtent(), moodSound.getSoundPositionOffset());
 
-        return AmbientMoodSettings.CODEC.encode(settings, JsonOps.INSTANCE, JsonOps.INSTANCE.empty()).get().orThrow();
+        return encode(AmbientMoodSettings.CODEC, settings);
     }
 
     public static MoodSound deserializeMoodSound(JsonElement moodSound) {
-        AmbientMoodSettings settings = AmbientMoodSettings.CODEC.decode(JsonOps.INSTANCE, moodSound).map(Pair::getFirst).result().orElseThrow();
+        AmbientMoodSettings settings = decode(AmbientMoodSettings.CODEC, moodSound);
 
         return MoodSound.of(Objects.requireNonNull(nmsSoundEventToBukkit(settings.getSoundEvent().value())), settings.getTickDelay(), settings.getBlockSearchExtent(), settings.getSoundPositionOffset());
     }
@@ -90,11 +92,11 @@ public class ApiEntityConverter {
     public static JsonElement serialize(Music music) {
         net.minecraft.sounds.Music nmsMusic = new net.minecraft.sounds.Music(Holder.direct(CraftSound.getSoundEffect(music.getSoundEvent())), music.getMinDelay(), music.getMaxDelay(), music.replaceCurrentMusic());
 
-        return net.minecraft.sounds.Music.CODEC.encode(nmsMusic, JsonOps.INSTANCE, JsonOps.INSTANCE.empty()).get().orThrow();
+        return encode(net.minecraft.sounds.Music.CODEC, nmsMusic);
     }
 
     public static Music deserializeMusic(JsonElement music) {
-        net.minecraft.sounds.Music nmsMusic = net.minecraft.sounds.Music.CODEC.decode(JsonOps.INSTANCE, music).map(Pair::getFirst).result().orElseThrow();
+        net.minecraft.sounds.Music nmsMusic = decode(net.minecraft.sounds.Music.CODEC, music);
 
         return Music.of(Objects.requireNonNull(nmsSoundEventToBukkit(nmsMusic.getEvent().value())), nmsMusic.getMinDelay(), nmsMusic.getMaxDelay(), nmsMusic.replaceCurrentMusic());
     }
@@ -103,5 +105,13 @@ public class ApiEntityConverter {
     // registries (maybe due to async context or being called too early?)
     private static Sound nmsSoundEventToBukkit(SoundEvent soundEvent) {
         return Registry.SOUNDS.get(Objects.requireNonNull(CraftNamespacedKey.fromMinecraft(soundEvent.getLocation())));
+    }
+
+    private static <T> JsonElement encode(Codec<T> type, T object) {
+        return type.encode(object, JsonOps.INSTANCE, JsonOps.INSTANCE.empty()).get().orThrow();
+    }
+
+    private static <T> T decode(Codec<T> type, JsonElement object) {
+        return type.decode(JsonOps.INSTANCE, object).map(Pair::getFirst).result().orElseThrow();
     }
 }

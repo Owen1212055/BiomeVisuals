@@ -1,5 +1,6 @@
 package com.owen1212055.biomevisuals.api.types.biome.effect;
 
+import com.google.gson.JsonObject;
 import org.bukkit.Particle;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -7,39 +8,35 @@ import org.jetbrains.annotations.Nullable;
 public final class AmbientParticle {
 
     @NotNull
-    private final Particle particle;
-    @Nullable
-    private final Object data;
+    private final JsonObject particle;
     private final float probability;
 
-    private AmbientParticle(@NotNull Particle particle, @Nullable Object data, float probability) {
-        this.particle = particle;
-        this.data = data;
+    private AmbientParticle( @NotNull JsonObject particleData, float probability) {
+        this.particle = particleData;
         this.probability = probability;
     }
 
     @NotNull
+    public static AmbientParticle of(float probability, @NotNull JsonObject particleData) {
+        return new AmbientParticle(particleData, probability);
+    }
+
+    @NotNull
     public static AmbientParticle of(@NotNull Particle particle, float probability, @Nullable Object data) {
-        return new AmbientParticle(particle, data, probability);
+        return new AmbientParticle(ParticleDataSerializer.of().serialize(particle, data), probability);
     }
 
     @NotNull
     public static AmbientParticle of(@NotNull Particle particle, float probability) {
-        return new AmbientParticle(particle, null, probability);
-    }
-
-    @NotNull
-    public Particle getParticle() {
-        return particle;
-    }
-
-    @Nullable
-    public Object getData() {
-        return data;
+        return new AmbientParticle(ParticleDataSerializer.of().serialize(particle, null), probability);
     }
 
     public float getProbability() {
         return probability;
     }
 
+    @NotNull
+    public JsonObject getParticle() {
+        return particle;
+    }
 }
