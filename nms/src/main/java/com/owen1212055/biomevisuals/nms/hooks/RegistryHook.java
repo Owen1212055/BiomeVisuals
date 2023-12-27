@@ -17,6 +17,10 @@ import com.owen1212055.biomevisuals.nms.Mappings;
 import com.owen1212055.biomevisuals.nms.UnsafeUtils;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.RegistrySynchronization;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.RegistryOps;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.slf4j.Logger;
@@ -28,7 +32,7 @@ import java.util.Optional;
 import static java.util.Map.Entry;
 
 public class RegistryHook {
-
+    private static final RegistryOps<JsonElement> BUILTIN_CONTEXT_OPS = RegistryOps.create(JsonOps.INSTANCE, RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY));
     private static Logger LOGGER;
 
     // Custom codec that wraps around the pre-existing codec.
@@ -43,7 +47,7 @@ public class RegistryHook {
 
             @Override
             public <T> DataResult<T> encode(RegistryAccess input, DynamicOps<T> ops, T prefix) {
-                DataResult<JsonElement> result = CAPTURED_CODEC.encode(input, JsonOps.INSTANCE, JsonOps.INSTANCE.empty());
+                DataResult<JsonElement> result = CAPTURED_CODEC.encode(input, BUILTIN_CONTEXT_OPS, BUILTIN_CONTEXT_OPS.empty());
                 Optional<DataResult.PartialResult<JsonElement>> optionalError = result.error();
                 if (optionalError.isPresent()) {
                     LOGGER.warn("Failed to encode to JSON: " + optionalError.get().message());
@@ -63,7 +67,7 @@ public class RegistryHook {
                 }
 
                 // Decode it back into NMS type from json
-                DataResult<Pair<RegistryAccess, JsonElement>> dataresult = CAPTURED_CODEC.decode(JsonOps.INSTANCE, mainRegistry);
+                DataResult<Pair<RegistryAccess, JsonElement>> dataresult = CAPTURED_CODEC.decode(BUILTIN_CONTEXT_OPS, mainRegistry);
                 // Fail?
                 if (dataresult.error().isPresent()) {
                     LOGGER.warn("Failed to encode hooked data: {}", dataresult.error().get().message());

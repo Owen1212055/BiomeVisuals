@@ -7,8 +7,11 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.owen1212055.biomevisuals.api.types.biome.effect.*;
 import net.minecraft.core.Holder;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.level.biome.AmbientAdditionsSettings;
@@ -16,14 +19,15 @@ import net.minecraft.world.level.biome.AmbientMoodSettings;
 import net.minecraft.world.level.biome.AmbientParticleSettings;
 import org.bukkit.Registry;
 import org.bukkit.Sound;
-import org.bukkit.craftbukkit.v1_19_R3.CraftParticle;
-import org.bukkit.craftbukkit.v1_19_R3.CraftSound;
-import org.bukkit.craftbukkit.v1_19_R3.util.CraftNamespacedKey;
+import org.bukkit.craftbukkit.v1_20_R3.CraftParticle;
+import org.bukkit.craftbukkit.v1_20_R3.CraftSound;
+import org.bukkit.craftbukkit.v1_20_R3.util.CraftNamespacedKey;
 
 import java.lang.reflect.Field;
 import java.util.Objects;
 
 public class ApiEntityConverter {
+    private static final RegistryOps<JsonElement> BUILTIN_CONTEXT_OPS = RegistryOps.create(JsonOps.INSTANCE, RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY));
 
     private static final Field probabilityField;
 
@@ -37,7 +41,7 @@ public class ApiEntityConverter {
     }
 
     public static JsonElement serialize(AdditionSound sound) {
-        AmbientAdditionsSettings settings = new AmbientAdditionsSettings(Holder.direct(CraftSound.getSoundEffect(sound.getSoundEvent())), sound.getTickChance());
+        AmbientAdditionsSettings settings = new AmbientAdditionsSettings(Holder.direct(CraftSound.bukkitToMinecraft(sound.getSoundEvent())), sound.getTickChance());
 
         return encode(AmbientAdditionsSettings.CODEC, settings);
     }
@@ -78,7 +82,7 @@ public class ApiEntityConverter {
     }
 
     public static JsonElement serialize(MoodSound moodSound) {
-        AmbientMoodSettings settings = new AmbientMoodSettings(Holder.direct(CraftSound.getSoundEffect(moodSound.getSoundEvent())), moodSound.getTickDelay(), moodSound.getBlockSearchExtent(), moodSound.getSoundPositionOffset());
+        AmbientMoodSettings settings = new AmbientMoodSettings(Holder.direct(CraftSound.bukkitToMinecraft(moodSound.getSoundEvent())), moodSound.getTickDelay(), moodSound.getBlockSearchExtent(), moodSound.getSoundPositionOffset());
 
         return encode(AmbientMoodSettings.CODEC, settings);
     }
@@ -90,7 +94,7 @@ public class ApiEntityConverter {
     }
 
     public static JsonElement serialize(Music music) {
-        net.minecraft.sounds.Music nmsMusic = new net.minecraft.sounds.Music(Holder.direct(CraftSound.getSoundEffect(music.getSoundEvent())), music.getMinDelay(), music.getMaxDelay(), music.replaceCurrentMusic());
+        net.minecraft.sounds.Music nmsMusic = new net.minecraft.sounds.Music(Holder.direct(CraftSound.bukkitToMinecraft(music.getSoundEvent())), music.getMinDelay(), music.getMaxDelay(), music.replaceCurrentMusic());
 
         return encode(net.minecraft.sounds.Music.CODEC, nmsMusic);
     }
@@ -108,10 +112,10 @@ public class ApiEntityConverter {
     }
 
     private static <T> JsonElement encode(Codec<T> type, T object) {
-        return type.encode(object, JsonOps.INSTANCE, JsonOps.INSTANCE.empty()).get().orThrow();
+        return type.encode(object, BUILTIN_CONTEXT_OPS, BUILTIN_CONTEXT_OPS.empty()).get().orThrow();
     }
 
     private static <T> T decode(Codec<T> type, JsonElement object) {
-        return type.decode(JsonOps.INSTANCE, object).map(Pair::getFirst).result().orElseThrow();
+        return type.decode(BUILTIN_CONTEXT_OPS, object).map(Pair::getFirst).result().orElseThrow();
     }
 }
